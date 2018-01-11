@@ -7,6 +7,7 @@
   Author: mcfarhat
   Author URI: http://www.greateck.com
   License: GPLv2
+  License URI:  https://www.gnu.org/licenses/gpl-2.0.html
  */
 
 /* handles tracking if required libraries have been added already */
