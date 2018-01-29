@@ -21,18 +21,6 @@ We believe that providing proper means to integrate information from steemit int
 
 Using GK Steemit Info, you now have the capability to create widgets or embed shortcodes to your wordpress solution.
 
-## Steemit User Count
-
-In its first version, the plugin allowed embedding a widget that displays the current number of users registered on steemit, at this instant over 600,000 users are registered on steemit.
-
-The widget allows you to set a proper title for the widget, but also to set the data refresh frequency. The default value is at 5,000 ms (5 seconds), and can be increased in increments of 500 ms (half a second) each. This flexibility is provided to your as a wordpress site owner if you have any other computing intensive functionality on your site.
-
-Check out screenshots 1, 2, and 3 below for a highlight of the widget, its configuration options, and the sample outcome of the widget.
-
-The widget also includes a link to refer people to steemit.com as a promotional aspect of the widget.
-
-You can alternatively use the shortcode version, through using [steemit_user_count refresh_frequency=5000] whereby refresh_frequency (optional) defines how often to refresh fetching the data. You can skip on setting this param and it defaults to 5,000 ms (5 seconds).
-
 ## Steemit User Posts
 
 We decided to add this widget due to its importance in highlighting the steemit posts by the owner of the wordpress site, or any other steemit author the site owner would like to highlight.
@@ -57,6 +45,18 @@ whereby:
 - excluderesteem (Optional) allows to avoid displaying resteemed posts and will only result in originally created posts by this author to be displayed
 - minpay (Optional) allows setting a minimum payment amount of the post to be returned back and displayed.
 - filtertag (Optional) allows filtering by one specific tag so that posts that do NOT contain this tag will not be returned back
+
+## Steemit User Count
+
+In its first version, the plugin allowed embedding a widget that displays the current number of users registered on steemit, at this instant over 600,000 users are registered on steemit.
+
+The widget allows you to set a proper title for the widget, but also to set the data refresh frequency. The default value is at 5,000 ms (5 seconds), and can be increased in increments of 500 ms (half a second) each. This flexibility is provided to your as a wordpress site owner if you have any other computing intensive functionality on your site.
+
+Check out screenshots 4, 5, and 6 below for a highlight of the widget, its configuration options, and the sample outcome of the widget.
+
+The widget also includes a link to refer people to steemit.com as a promotional aspect of the widget.
+
+You can alternatively use the shortcode version, through using [steemit_user_count refresh_frequency=5000] whereby refresh_frequency (optional) defines how often to refresh fetching the data. You can skip on setting this param and it defaults to 5,000 ms (5 seconds).
 
 ## Installation 
 
