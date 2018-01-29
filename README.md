@@ -1,13 +1,13 @@
 # Plugin Info
 
-**Plugin Name**: GK Steemit Info
-**Contributors**: mcfarhat
-**Tags**: wordpress, steemit, widget, user count
-**Requires at least**: 4.3
-**Tested up to**: 4.9
-**Stable tag**: trunk
-**License**: GPLv2 or later
-**License URI**: https://www.gnu.org/licenses/gpl-2.0.html
+**Plugin Name**: GK Steemit Info<br/>
+**Contributors**: mcfarhat<br/>
+**Tags**: wordpress, steemit, widget, user count<br/>
+**Requires at least**: 4.3<br/>
+**Tested up to**: 4.9<br/>
+**Stable tag**: trunk<br/>
+**License**: GPLv2 or later<br/>
+**License URI**: https://www.gnu.org/licenses/gpl-2.0.html<br/>
 
 # Short Summary
 
