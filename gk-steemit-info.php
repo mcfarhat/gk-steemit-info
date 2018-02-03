@@ -681,8 +681,8 @@ function steemit_user_info_renderer($username, $contentid){
 							});
 							
 							
-							$('#steem<?php echo $contentid;?>').text('STEEM Balance: '+userinfo.balance);
-							$('#sbd<?php echo $contentid;?>').text('SBD Balance: '+userinfo.sbd_balance);
+							$('#steem<?php echo $contentid;?>').text('STEEM Balance: '+gk_add_commas(userinfo.balance.replace(' STEEM',''))+' STEEM');
+							$('#sbd<?php echo $contentid;?>').text('SBD Balance: '+gk_add_commas(userinfo.sbd_balance.replace(' SBD',''))+' SBD');
 							
 							$('#voting_power<?php echo $contentid;?>').text('Voting Power: '+(parseInt(userinfo.voting_power)/100)+'%');
 							$('#reputation<?php echo $contentid;?>').text('Reputation: '+steem.formatter.reputation(userinfo.reputation));
