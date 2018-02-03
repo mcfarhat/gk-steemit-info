@@ -2,16 +2,41 @@
 /*
   Plugin Name: GK Steemit Info
   Plugin URI: http://www.greateck.com/
-  Description: A wordpress plugin that allows adding steemit (www.steemit.com) data to wordpress sites via widget or alternatively a shortcode
-  Version: 0.2.0
+  Description: A wordpress plugin that allows adding steem(it) (www.steemit.com) data to wordpress sites via widget or alternatively a shortcode
+  Version: 0.3.0
   Author: mcfarhat
   Author URI: http://www.greateck.com
   License: GPLv2
   License URI:  https://www.gnu.org/licenses/gpl-2.0.html
  */
-
+ 
 /* handles tracking if required libraries have been added already */
+global $libraries_appended;
 $libraries_appended = false; 
+ 
+add_action('wp_head','include_js_func');
+ 
+function include_js_func(){
+	?>
+	<script>
+		/* function for formatting numbers with extra commas */
+		function gk_add_commas(nStr) {
+			if (isNaN(nStr)){ 
+				return nStr;
+			}
+			nStr += '';
+			var x = nStr.split('.');
+			var x1 = x[0];
+			var x2 = x.length > 1 ? '.' + x[1] : '';
+			var rgx = /(\d+)(\d{3})/;
+			while (rgx.test(x1)) {
+				x1 = x1.replace(rgx, '$1' + ',' + '$2');
+			}
+			return x1 + x2;
+		}
+	</script>
+	<?php
+}
  
 /* Creating widget handling steemit user count */
 class steemit_info_widget extends WP_Widget {
@@ -19,7 +44,7 @@ class steemit_info_widget extends WP_Widget {
 		parent::__construct(
 		'steemit_info_widget',
 		__('Steemit Info Widget', 'gk_steemit_info'),
-		array( 'description' => __( 'Widget Allowing Display of Steemit info', 'gk_steemit_info' ), )
+		array( 'description' => __( 'Widget Allowing Display of Steem(it) info', 'gk_steemit_info' ), )
 		);
 	}
 	// Creating widget front-end
@@ -41,7 +66,7 @@ class steemit_info_widget extends WP_Widget {
 			$title = $instance[ 'title' ];
 		}
 		else {
-			$title = __( 'Steemit User Count', 'gk_steemit_info' );
+			$title = __( 'Steem(it) Info', 'gk_steemit_info' );
 		}
 		if ( isset( $instance[ 'refresh_frequency' ] ) ) {
 			$refresh_frequency = $instance[ 'refresh_frequency' ];
@@ -92,11 +117,11 @@ function display_steemit_user_count( $atts, $content = "" ) {
 
 /* function handling the display of the steemit users count widget */
 function steemit_count_renderer($refresh_frequency){
-
+	global $libraries_appended;
 	if (!$libraries_appended){
 ?>
 		<!-- including fontawesome -->
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+		<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
 		<!-- including steemjs library for performing calls -->
 		<script src="https://cdn.steemjs.com/lib/latest/steem.min.js"></script>
 		<!-- including jQuery -->
@@ -107,6 +132,7 @@ function steemit_count_renderer($refresh_frequency){
 	}
 ?>
 		<script>
+			var skip_price_pull = 0;
 			function tick_info(){
 				jQuery(document).ready(function($){
 					//fix for migration to api.steemit.com
@@ -114,9 +140,68 @@ function steemit_count_renderer($refresh_frequency){
 					
 					steem.api.getAccountCount(function(err, result) {
 						//result now contains the number of accounts. Display this into the input box
-						$('#steemit_accounts').text(result);
-						console.log(err, 'account count:'+result);
+						$('#steemit_accounts').text(gk_add_commas(result));
+						// console.log(err, 'account count:'+gk_add_commas(result));
 					});
+					
+					//grab steem dynamic properties to allow converting vesting shares to STEEM Power
+					steem.api.getDynamicGlobalProperties(function(err, result) {
+						// console.log(result);
+						$('#sbd_supply').text("SBD Supply: "+gk_add_commas(result.current_sbd_supply.replace(' SBD',''))+' SBD');
+						$('#steem_supply').text("STEEM Supply: "+gk_add_commas(result.current_supply.replace(' STEEM',''))+' STEEM');
+					});
+					
+					<?php 
+					//for price feed, we need to minimize calls not to overuse coinmarketcap API. restrict to once per every 20 seconds.
+					if ($refresh_frequency <= 20000){
+					?>
+						if (skip_price_pull == 0){
+							console.log('>>grab');
+							//grab steem values
+							$.ajax({
+								url: 'https://api.coinmarketcap.com/v1/ticker/steem/',
+								dataType: 'json',
+								success: function (data) { 
+									// console.log(parseFloat(data[0].price_usd).toFixed(2));
+									var content = 'STEEM: $'+parseFloat(data[0].price_usd).toFixed(2);
+									if (parseFloat(data[0].percent_change_1h) > 0){
+										content += ' <i class="fas fa-arrow-up"></i>'
+									}else{
+										content += ' <i class="fas fa-arrow-down"></i>'
+									}
+									content += ' (Rank: '+data[0].rank+')';
+									$('#steem_price').html(content);
+								}
+							});
+							//grab SBD values
+							$.ajax({
+								url: 'https://api.coinmarketcap.com/v1/ticker/steem-dollars/',
+								dataType: 'json',
+								success: function (data) { 
+									// console.log(parseFloat(data[0].price_usd).toFixed(2));
+									var content = 'SBD: $'+parseFloat(data[0].price_usd).toFixed(2);
+									if (parseFloat(data[0].percent_change_1h) > 0){
+										content += ' <i class="fas fa-arrow-up"></i>'
+									}else{
+										content += ' <i class="fas fa-arrow-down"></i>'
+									}
+									content += ' (Rank: '+data[0].rank+')';
+									$('#sbd_price').html(content);
+								}
+							});
+							skip_price_pull ++;
+						}else{
+							//skip trice
+							if (skip_price_pull < 3){
+								skip_price_pull ++;
+							}else{
+								skip_price_pull = 0;
+							}
+						}
+						
+					<?php
+					}
+					?>
 				});
 			}
 			//first call
@@ -127,9 +212,14 @@ function steemit_count_renderer($refresh_frequency){
 		<div>
 			<span>Steemit Current Users Count:</span>
 			<span id="steemit_accounts"></span>
-			<ul id="result"></ul>
-			<div>Check out <a href="https://www.steemit.com">Steemit.com</div><br/>
-			<div><i>Your voice is worth something. Join the community that pays you to post and curate high quality content.</i></div>
+			<div id="sbd_supply"></div>
+			<div id="steem_supply"></div>
+			<div id="steem_price"></div>
+			<div id="sbd_price"></div>
+			<span><i>Current Price per <a href="https://coinmarketcap.com/">CoinMarketCap.com</a></i></span>
+			<br/>
+			<div><i>Your voice is worth something. Join the community that pays you to post and curate high quality content.<br/>
+			Check out <a href="https://www.steemit.com">Steemit.com</a></i></div>
 		</div>
 <?php
 }
@@ -143,7 +233,7 @@ class steemit_user_posts_widget extends WP_Widget {
 		parent::__construct(
 		'steemit_user_posts_widget',
 		__('Steemit User Posts Widget', 'gk_steemit_info'),
-		array( 'description' => __( 'Widget Allowing Display of Steemit info', 'gk_steemit_info' ), )
+		array( 'description' => __( 'Widget Allowing Display of Specific User Posts while providing filtering criteria', 'gk_steemit_info' ), )
 		);
 	}
 	// Creating widget front-end
@@ -184,6 +274,11 @@ class steemit_user_posts_widget extends WP_Widget {
 		else {
 			$title = __( 'Posts on <a href="https://www.steemit.com">Steemit</a>', 'gk_steemit_user_posts' );
 		}
+		$steemit_username = "";
+		$steemit_post_count = "";
+		$steemit_exclude_resteem = "";
+		$steemit_post_min_pay = "";
+		$steemit_post_tag = "";
 		if ( isset( $instance[ 'steemit_username' ] ) ) {
 			$steemit_username = $instance[ 'steemit_username' ];
 		}
@@ -277,10 +372,11 @@ function steemit_user_posts_renderer($username, $postcount, $excluderesteem, $po
 	if (!is_numeric ($postcount) || (is_numeric($postcount) && ($postcount<1 || $postcount>100))){
 		$postcount = 10;
 	}
+	global $libraries_appended;
 	if (!$libraries_appended){
 ?>
 		<!-- including fontawesome -->
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+		<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
 		<!-- including steemjs library for performing calls -->
 		<script src="https://cdn.steemjs.com/lib/latest/steem.min.js"></script>
 		<!-- including jQuery -->
@@ -294,6 +390,12 @@ function steemit_user_posts_renderer($username, $postcount, $excluderesteem, $po
 		.gk-loader-img{
 			display: block;
 			margin: auto;
+		}
+		.steemit_user_info{
+			text-align: center;
+		}
+		.steemit_user_img{
+			width: 50px;
 		}
 	</style>
 	<div>
@@ -425,6 +527,194 @@ function steemit_user_posts_renderer($username, $postcount, $excluderesteem, $po
 				});
 			});
 	</script>
+<?php
+}
+
+/*********************************************************************/
+
+
+/* Creating widget handling steemit user info */
+class steemit_user_info_widget extends WP_Widget {
+	function __construct() {
+		parent::__construct(
+		'steemit_user_info_widget',
+		__('Steemit User Info Widget', 'gk_steemit_info'),
+		array( 'description' => __( 'Widget Allowing Display of Steemit User Account info', 'gk_steemit_info' ), )
+		);
+	}
+	// Creating widget front-end
+	public function widget( $args, $instance ) {
+		$title = apply_filters( 'steemit_user_info_widget_title', $instance['title'] );
+		$username = apply_filters( 'steemit_username_widget', $instance['steemit_username'] );
+		//making room for hook display by any theme
+		echo $args['before_widget'];
+		if ( ! empty( $title ) ){
+			echo $args['before_title'] . $title . $args['after_title'];
+		}
+		//widget container unique identifier based on timestamp
+		$date = new DateTime();
+		$contentid = $date->getTimestamp().mt_rand(1,4000);
+		//display output in the widget
+		steemit_user_info_renderer($username, $contentid);
+		//making room for hook display by any theme
+		echo $args['after_widget'];
+	}
+	// Widget Backend
+	public function form( $instance ) {
+		if ( isset( $instance[ 'title' ] ) ) {
+			$title = $instance[ 'title' ];
+		}
+		else {
+			$title = __( 'Steemit User Info', 'gk_steemit_info' );
+		}
+		if ( isset( $instance[ 'steemit_username' ] ) ) {
+			$steemit_username = $instance[ 'steemit_username' ];
+		}else{
+			$steemit_username = "";
+		}
+		// Widget admin form
+		?>
+		<p>
+		<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label>
+		<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
+		</p>
+		<p><label for="<?php echo $this->get_field_id( 'steemit_username' ); ?>">Steemit Username:</label>
+		@<input type="text" class="text" id="<?php echo $this->get_field_id( 'steemit_username' ); ?>" name="<?php echo $this->get_field_name( 'steemit_username' ); ?>" value="<?php echo esc_attr( $steemit_username ); ?>"></p>
+		<?php
+	}
+	// Updating widget replacing old instances with new
+	public function update( $new_instance, $old_instance ) {
+		$instance = array();
+		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
+		$instance['steemit_username'] = ( ! empty( $new_instance['steemit_username'] ) ) ? $new_instance['steemit_username'] : '';
+		return $instance;
+	}
+}
+
+/* Register and load the widget*/
+function gk_load_steemit_user_info_widget() {
+    register_widget( 'steemit_user_info_widget' );
+}
+add_action( 'widgets_init', 'gk_load_steemit_user_info_widget' ); 
+
+
+/* shortcode to display steemit user info on front end. 
+Use it in format [steemit_user_info username=USERNAME] */
+add_shortcode('steemit_user_info', 'display_steemit_user_info' );
+
+function display_steemit_user_info( $atts, $content = "" ) {
+	$username = $inner_atts['username'];
+	//widget container unique identifier based on timestamp
+	$date = new DateTime();
+	$contentid = $date->getTimestamp().mt_rand(1,4000);
+	steemit_user_info_renderer($username, $contentid);
+}
+
+/* function handling the display of the steemit users count widget */
+function steemit_user_info_renderer($username, $contentid){
+	global $libraries_appended;
+	if (!$libraries_appended){
+?>
+		<!-- including fontawesome -->
+		<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+		<!-- including steemjs library for performing calls -->
+		<script src="https://cdn.steemjs.com/lib/latest/steem.min.js"></script>
+		<!-- including jQuery -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		
+<?php
+		$libraries_appended = true;
+	}
+?>
+		<script>
+		
+			function grab_user_info(){
+				jQuery(document).ready(function($){
+					//fix for migration to api.steemit.com
+					steem.api.setOptions({ url: 'https://api.steemit.com' });
+					
+					//function handling fetching of user related info
+					steem.api.getAccounts(['<?php echo $username;?>'], function(err, result) {
+						//result now contains the account details
+						// console.log(err, result);
+						//loop through each, we should have a single result either way
+						$.each (result, function (index, userinfo){
+							$('#account_name<?php echo $contentid;?>').html('<a href="https://www.steemit.com/@'+userinfo.name+'">@'+userinfo.name+'</a>');
+							$('#post_count<?php echo $contentid;?>').text('Total Posts: '+gk_add_commas(userinfo.post_count)+' posts');
+							//parse JSON content
+							var user_json_meta = JSON.parse(userinfo.json_metadata);
+							//display different content
+							$('#user_img<?php echo $contentid;?>').attr('src',user_json_meta.profile.profile_image);
+							(user_json_meta.profile.location!=""?$('#location<?php echo $contentid;?>').text('Location: '+user_json_meta.profile.location):'');
+							(user_json_meta.profile.about!=""?$('#about<?php echo $contentid;?>').text('About: '+user_json_meta.profile.about):'');
+							(user_json_meta.profile.website!=""?$('#website<?php echo $contentid;?>').html('Website: <a href="'+user_json_meta.profile.website+'">'+user_json_meta.profile.website+'</a>'):'');
+							var account_balance = steem.formatter.estimateAccountValue(userinfo);
+							//the result of fetching account value is a promise, so we need to wait for it to complete
+							$.when(account_balance).done(function(arg){
+								// console.log('done');
+								// console.log(arg);
+								$('#account_balance<?php echo $contentid;?>').text('Estimated Account Value: $'+gk_add_commas(parseFloat(arg).toFixed(2)));
+							});
+							// console.log(account_balance);
+							
+							//grab vesting values including delegated and received
+							var vest_shares = userinfo.vesting_shares;
+							var delg_vesting_shares = userinfo.delegated_vesting_shares;
+							var recv_vesting_shares = userinfo.received_vesting_shares;
+							
+							//grab steem dynamic properties to allow converting vesting shares to STEEM Power
+							steem.api.getDynamicGlobalProperties(function(err, result) {
+								//as we receive the result, we need total_vesting_shares and total_vesting_fund_steem to convert vesting to STEEM, as follows
+								// console.log(result);
+								var steem_power = steem.formatter.vestToSteem(vest_shares, result.total_vesting_shares, result.total_vesting_fund_steem);
+								$('#steem_power<?php echo $contentid;?>').text('Own STEEM Power: '+gk_add_commas(parseFloat(steem_power).toFixed(2))+' SP');
+								var delg_steem_power = steem.formatter.vestToSteem(delg_vesting_shares, result.total_vesting_shares, result.total_vesting_fund_steem);
+								var recv_steem_power = steem.formatter.vestToSteem(recv_vesting_shares, result.total_vesting_shares, result.total_vesting_fund_steem);
+								var effc_steem_power = steem_power - delg_steem_power + recv_steem_power;
+								if (delg_steem_power>0){
+									$('#delg_steem_power<?php echo $contentid;?>').text('Delegated STEEM Power: -'+gk_add_commas(parseFloat(delg_steem_power).toFixed(2))+' SP');
+								}
+								if (recv_steem_power>0){
+									$('#recv_steem_power<?php echo $contentid;?>').text('Received STEEM Power: '+gk_add_commas(parseFloat(recv_steem_power).toFixed(2))+' SP');
+								}
+								$('#effc_steem_power<?php echo $contentid;?>').text('Effective STEEM Power: '+gk_add_commas(parseFloat(effc_steem_power).toFixed(2))+' SP');
+							});
+							
+							
+							$('#steem<?php echo $contentid;?>').text('STEEM Balance: '+userinfo.balance);
+							$('#sbd<?php echo $contentid;?>').text('SBD Balance: '+userinfo.sbd_balance);
+							
+							$('#voting_power<?php echo $contentid;?>').text('Voting Power: '+(parseInt(userinfo.voting_power)/100)+'%');
+							$('#reputation<?php echo $contentid;?>').text('Reputation: '+steem.formatter.reputation(userinfo.reputation));
+							
+						});
+					});
+
+				});
+			}
+			//first call
+			grab_user_info();
+			//subsequent recurring calls. Make this update every 30 secs. Not much would change within this timeframe if the page was left loading
+			setInterval(grab_user_info, 30000);
+		</script>
+		<div class="steemit_user_info">
+			<div id="account_name<?php echo $contentid;?>"></div>
+			<img id="user_img<?php echo $contentid;?>" class="steemit_user_img">
+			<div id="about<?php echo $contentid;?>"></div>
+			<div id="location<?php echo $contentid;?>"></div>
+			<div id="website<?php echo $contentid;?>"></div>
+			<div id="post_count<?php echo $contentid;?>"></div>
+			<div id="user_posts<?php echo $contentid;?>"></div>
+			<div id="steem_power<?php echo $contentid;?>"></div>
+			<div id="delg_steem_power<?php echo $contentid;?>"></div>
+			<div id="recv_steem_power<?php echo $contentid;?>"></div>
+			<div id="effc_steem_power<?php echo $contentid;?>"></div>
+			<div id="steem<?php echo $contentid;?>"></div>
+			<div id="sbd<?php echo $contentid;?>"></div>
+			<div id="voting_power<?php echo $contentid;?>"></div>
+			<div id="reputation<?php echo $contentid;?>"></div>
+			<div id="account_balance<?php echo $contentid;?>"></div>
+		</div>
 <?php
 }
 ?>
