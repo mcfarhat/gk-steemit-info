@@ -3,7 +3,7 @@
   Plugin Name: GK Steemit Info
   Plugin URI: http://www.greateck.com/
   Description: A wordpress plugin that allows adding steem(it) (www.steemit.com) data to wordpress sites via widget or alternatively a shortcode
-  Version: 0.3.0
+  Version: 0.4.0
   Author: mcfarhat
   Author URI: http://www.greateck.com
   License: GPLv2
@@ -14,8 +14,7 @@
 global $libraries_appended;
 $libraries_appended = false; 
  
-add_action('wp_head','include_js_func');
- 
+//function to include required JS adjustments
 function include_js_func(){
 	?>
 	<script>
@@ -37,6 +36,38 @@ function include_js_func(){
 	</script>
 	<?php
 }
+//function to include required CSS adjustments
+function include_css_func(){
+
+?>
+
+<style>
+	.gk-loader-img{
+		display: block;
+		margin: auto;
+	}
+	.steemit_user_info{
+		text-align: center;
+	}
+	.steemit_user_img{
+		width: 50px;
+	}
+	.gk_steemit_add_info{
+		float: right;
+	}
+	.gk_steemit_author_name{
+		font-style: italic;
+	}
+	.steemit-post-entry{
+		padding: 8px;
+	}
+</style>
+
+<?php
+}
+//hook ito wp_head to append JS and CSS functionality
+add_action('wp_head', 'include_js_func');
+add_action('wp_head', 'include_css_func');
  
 /* Creating widget handling steemit user count */
 class steemit_info_widget extends WP_Widget {
@@ -163,13 +194,25 @@ function steemit_count_renderer($refresh_frequency){
 								dataType: 'json',
 								success: function (data) { 
 									// console.log(parseFloat(data[0].price_usd).toFixed(2));
-									var content = 'STEEM: $'+parseFloat(data[0].price_usd).toFixed(2);
+									var content = '<b>STEEM/USD:</b> <br/>$'+parseFloat(data[0].price_usd).toFixed(2);
+									content += '<div class="gk_steemit_add_info">';
 									if (parseFloat(data[0].percent_change_1h) > 0){
-										content += ' <i class="fas fa-arrow-up"></i>'
+										content += ' 1h: <i class="fas fa-arrow-up"></i>';
 									}else{
-										content += ' <i class="fas fa-arrow-down"></i>'
+										content += ' 1h: <i class="fas fa-arrow-down"></i>';
 									}
-									content += ' (Rank: '+data[0].rank+')';
+									if (parseFloat(data[0].percent_change_24h) > 0){
+										content += ' 24h: <i class="fas fa-arrow-up"></i>';
+									}else{
+										content += ' 24h: <i class="fas fa-arrow-down"></i>';
+									}
+									if (parseFloat(data[0].percent_change_7d) > 0){
+										content += ' 7d: <i class="fas fa-arrow-up"></i>';
+									}else{
+										content += ' 7d: <i class="fas fa-arrow-down"></i>';
+									}
+									content += ' Rank: '+data[0].rank;
+									content += '</div>';
 									$('#steem_price').html(content);
 								}
 							});
@@ -179,13 +222,25 @@ function steemit_count_renderer($refresh_frequency){
 								dataType: 'json',
 								success: function (data) { 
 									// console.log(parseFloat(data[0].price_usd).toFixed(2));
-									var content = 'SBD: $'+parseFloat(data[0].price_usd).toFixed(2);
+									var content = '<b>SBD/USD:</b> <br/> $'+parseFloat(data[0].price_usd).toFixed(2);
+									content += '<div class="gk_steemit_add_info">';
 									if (parseFloat(data[0].percent_change_1h) > 0){
-										content += ' <i class="fas fa-arrow-up"></i>'
+										content += ' 1h: <i class="fas fa-arrow-up"></i>';
 									}else{
-										content += ' <i class="fas fa-arrow-down"></i>'
+										content += ' 1h: <i class="fas fa-arrow-down"></i>';
 									}
-									content += ' (Rank: '+data[0].rank+')';
+									if (parseFloat(data[0].percent_change_24h) > 0){
+										content += ' 24h: <i class="fas fa-arrow-up"></i>';
+									}else{
+										content += ' 24h: <i class="fas fa-arrow-down"></i>';
+									}
+									if (parseFloat(data[0].percent_change_7d) > 0){
+										content += ' 7d: <i class="fas fa-arrow-up"></i>';
+									}else{
+										content += ' 7d: <i class="fas fa-arrow-down"></i>';
+									}
+									content += ' Rank: '+data[0].rank;
+									content += '</div>';
 									$('#sbd_price').html(content);
 								}
 							});
@@ -216,7 +271,7 @@ function steemit_count_renderer($refresh_frequency){
 			<div id="steem_supply"></div>
 			<div id="steem_price"></div>
 			<div id="sbd_price"></div>
-			<span><i>Current Price per <a href="https://coinmarketcap.com/">CoinMarketCap.com</a></i></span>
+			<span><i>Current Prices via <a href="https://coinmarketcap.com/">CoinMarketCap.com</a> API</i></span>
 			<br/>
 			<div><i>Your voice is worth something. Join the community that pays you to post and curate high quality content.<br/>
 			Check out <a href="https://www.steemit.com">Steemit.com</a></i></div>
@@ -272,7 +327,7 @@ class steemit_user_posts_widget extends WP_Widget {
 			$title = $instance[ 'title' ];
 		}
 		else {
-			$title = __( 'Posts on <a href="https://www.steemit.com">Steemit</a>', 'gk_steemit_user_posts' );
+			$title = __( 'Posts On Steemit', 'gk_steemit_user_posts' );
 		}
 		$steemit_username = "";
 		$steemit_post_count = "";
@@ -386,18 +441,6 @@ function steemit_user_posts_renderer($username, $postcount, $excluderesteem, $po
 	}
 ?>
 
-	<style>
-		.gk-loader-img{
-			display: block;
-			margin: auto;
-		}
-		.steemit_user_info{
-			text-align: center;
-		}
-		.steemit_user_img{
-			width: 50px;
-		}
-	</style>
 	<div>
 		<div id="user_posts_container<?php echo $contentid;?>">
 			<!-- default loader -->
@@ -502,17 +545,20 @@ function steemit_user_posts_renderer($username, $postcount, $excluderesteem, $po
 							entry.setAttribute('class','steemit-post-entry');
 							
 							//grab the details of the post
-							var post_details = '<a href="https://www.steemit.com'+post.url+'">'+post.title;
+							var post_details = '<a href="https://www.steemit.com'+post.url+'">'+post.title+'</a>';
+							
+							//add container div for proper formatting
+							post_details += '<div class="gk_steemit_add_info">';
 							
 							//append vote count onto it
 							// console.log(post.active_votes.length);
-							post_details += '&nbsp; ('+post.active_votes.length+' <i class="fa fa-thumbs-up" aria-hidden="true"></i>)';
+							post_details += '&nbsp; '+post.active_votes.length+' <i class="fa fa-thumbs-up" aria-hidden="true"></i>';
 							
 							//append money value onto it
-							post_details += '&nbsp; ('+money_val+')';
+							post_details += '&nbsp; '+money_val+'';
 							
 							//close href
-							post_details += '</a>';
+							post_details += '</div>';
 							entry.innerHTML = post_details;
 							//append it to the existing list
 							container.appendChild(entry);
@@ -678,6 +724,30 @@ function steemit_user_info_renderer($username, $contentid){
 									$('#recv_steem_power<?php echo $contentid;?>').text('Received STEEM Power: '+gk_add_commas(parseFloat(recv_steem_power).toFixed(2))+' SP');
 								}
 								$('#effc_steem_power<?php echo $contentid;?>').text('Effective STEEM Power: '+gk_add_commas(parseFloat(effc_steem_power).toFixed(2))+' SP');
+								
+								//grab steem value
+								$.ajax({
+									url: 'https://api.coinmarketcap.com/v1/ticker/steem/',
+									dataType: 'json',
+									success: function (data) { 
+										// console.log(parseFloat(data[0].price_usd).toFixed(2));
+										var steem_price = parseFloat(data[0].price_usd).toFixed(2);
+										//grab SBD values
+										$.ajax({
+											url: 'https://api.coinmarketcap.com/v1/ticker/steem-dollars/',
+											dataType: 'json',
+											success: function (data) { 
+												// console.log(parseFloat(data[0].price_usd).toFixed(2));
+												var sbd_price = parseFloat(data[0].price_usd).toFixed(2);
+												
+												var realtime_balance = (parseFloat(steem_power)+parseFloat(userinfo.balance.replace(' STEEM',''))) * steem_price
+																		+ parseFloat(userinfo.sbd_balance.replace(' SBD','')) * sbd_price;
+												$('#realtime_balance<?php echo $contentid;?>').text('Real Time Account Value: $'+gk_add_commas(realtime_balance.toFixed(2)));
+											}
+										});
+									}
+								});
+								
 							});
 							
 							
@@ -714,7 +784,205 @@ function steemit_user_info_renderer($username, $contentid){
 			<div id="voting_power<?php echo $contentid;?>"></div>
 			<div id="reputation<?php echo $contentid;?>"></div>
 			<div id="account_balance<?php echo $contentid;?>"></div>
+			<div id="realtime_balance<?php echo $contentid;?>"></div>
 		</div>
 <?php
 }
+
+/**************************************************************/
+
+/* Creating widget handling steemit user count */
+class steemit_trending_posts_widget extends WP_Widget {
+	function __construct() {
+		parent::__construct(
+		'steemit_trending_posts_widget',
+		__('Steemit Trending Posts Widget', 'gk_steemit_info'),
+		array( 'description' => __( 'Widget Allowing Display of Trending Posts while also providing filtering criteria', 'gk_steemit_info' ), )
+		);
+	}
+	// Creating widget front-end
+	public function widget( $args, $instance ) {
+		$title = apply_filters( 'steemit_trending_posts_widget_title', $instance['title'] );
+		
+		//making room for hook display by any theme
+		echo $args['before_widget'];
+		if ( ! empty( $title ) )
+			echo $args['before_title'] . $title . $args['after_title'];
+			
+		//grab username and post count params
+		$postcount = apply_filters( 'steemit_post_count_widget', $instance['steemit_post_count'] );
+		$posttag = apply_filters( 'steemit_post_tag_widget', $instance['steemit_post_tag'] );
+		
+		//widget container unique identifier based on timestamp
+		$date = new DateTime();
+		$contentid = $date->getTimestamp().mt_rand(1,4000);
+		//display output in the widget
+		steemit_trending_posts_renderer($postcount, $posttag, $contentid);
+		
+		//making room for hook display by any theme
+		echo $args['after_widget'];
+	}
+	// Widget Backend
+	public function form( $instance ) {
+		//grab presaved values
+		if ( isset( $instance[ 'title' ] ) ) {
+			$title = $instance[ 'title' ];
+		}
+		else {
+			$title = __( 'Trending Posts On Steemit', 'gk_steemit_trending_posts' );
+		}
+		$steemit_post_count = "";
+		$steemit_post_tag = "";
+		if ( isset( $instance[ 'steemit_post_count' ] ) ) {
+			$steemit_post_count = $instance[ 'steemit_post_count' ];
+		}
+		if ( isset( $instance[ 'steemit_post_tag' ] ) ) {
+			$steemit_post_tag = $instance[ 'steemit_post_tag' ];
+		}
+		
+		
+		// Widget admin form
+		?>
+		<p>
+		<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label>
+		<input type="text" class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo esc_attr( $title ); ?>" />
+		</p>
+		<p><label for="<?php echo $this->get_field_id( 'steemit_post_count' ); ?>">Max Post Count:</label>
+		<input type="number" class="text" id="<?php echo $this->get_field_id( 'steemit_post_count' ); ?>" name="<?php echo $this->get_field_name( 'steemit_post_count' ); ?>" step="1" min="1" max="50" value="<?php echo esc_attr( $steemit_post_count ); ?>"></p>
+		<p><label for="<?php echo $this->get_field_id( 'steemit_post_tag' ); ?>">Filter by Tag:</label>
+		<input type="text" class="text" id="<?php echo $this->get_field_id( 'steemit_post_tag' ); ?>" name="<?php echo $this->get_field_name( 'steemit_post_tag' ); ?>" value="<?php echo esc_attr( $steemit_post_tag ); ?>"></p>
+		<?php
+	}
+	// Updating widget replacing old instances with new
+	public function update( $new_instance, $old_instance ) {
+		$instance = array();
+		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
+		$instance['steemit_post_count'] = ( ! empty( $new_instance['steemit_post_count'] ) ) ? $new_instance['steemit_post_count'] : '';
+		$instance['steemit_post_tag'] = ( ! empty( $new_instance['steemit_post_tag'] ) ) ? $new_instance['steemit_post_tag'] : '';
+		return $instance;
+	}
+}
+
+/* Register and load the widget*/
+function gk_load_steemit_trending_posts_widget() {
+    register_widget( 'steemit_trending_posts_widget' );
+}
+add_action( 'widgets_init', 'gk_load_steemit_trending_posts_widget' ); 
+ 
+/* shortcode to display steemit trending posts on front end. 
+Use it in format [steemit_trending_posts limit=LIMIT filtertag=TAG] */
+add_shortcode('steemit_trending_posts', 'display_steemit_trending_posts' );
+
+function display_steemit_trending_posts( $atts, $content = "" ) {
+	$postcount = $inner_atts['limit'];
+	$posttag = $inner_atts['filtertag'];
+	if (empty($posttag)){
+		$posttag = '';
+	}
+	//widget container unique identifier based on timestamp
+	$date = new DateTime();
+	$contentid = $date->getTimestamp().mt_rand(1,4000);;
+	steemit_trending_posts_renderer($postcount, $posttag, $contentid);
+}
+
+/* function handling the display of the selected users' posts */
+function steemit_trending_posts_renderer($postcount, $posttag, $contentid){
+	//if postcount not properly provided and within 1 - 100, default to 10
+	if (!is_numeric ($postcount) || (is_numeric($postcount) && ($postcount<1 || $postcount>100))){
+		$postcount = 10;
+	}
+	global $libraries_appended;
+	if (!$libraries_appended){
 ?>
+		<!-- including fontawesome -->
+		<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+		<!-- including steemjs library for performing calls -->
+		<script src="https://cdn.steemjs.com/lib/latest/steem.min.js"></script>
+		<!-- including jQuery -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>	
+<?php
+		$libraries_appended = true;
+	}
+?>
+
+	<div>
+		<div id="trending_posts_container<?php echo $contentid;?>">
+			<!-- default loader -->
+			<img class="gk-loader-img" src="<?php echo plugins_url();?>/gk-steemit-info/img/ajax-loader.gif">
+		</div>
+		
+	</div>	
+	<script>
+			/* when properly loaded, call steem API method to grab recent posts by selected username and display them */
+			jQuery(document).ready(function($){
+				//fix for migration to api.steemit.com
+				steem.api.setOptions({ url: 'https://api.steemit.com' });
+				
+				//setup query to grab proper posts with limit and/or tag
+				var query = {
+					<?php 
+					//no need to include tag if not set
+					if ($posttag!=''){?>
+					tag: '<?php echo $posttag;?>',
+					<?php } ?>
+					limit: <?php echo $postcount;?>,
+				};
+				var container = document.getElementById('trending_posts_container<?php echo $contentid;?>');
+				//call getDiscussionsByTrending to grab trending posts
+				steem.api.getDiscussionsByTrending(query, function(err, posts) {
+					// console.log(err, discussions);
+					if (!err) {
+						//remove loader / empty container
+						container.innerHTML="";
+						
+						/* replacing map with each to allow breaking out */
+						$.each (posts, function (index, post){
+						//posts.map(function (post) {
+							console.log(post);
+							var post_json_meta = JSON.parse(post.json_metadata);
+							// console.log(post_json_meta.tags);
+							
+							//images: post_json_meta.image
+							
+							//grab payout value as default, if the post has been paid
+							var money_val = post.total_payout_value;
+							//check if author rewards have been paid or not, if not we need to grab the pending amount alternatively
+							var author_paid = (post.author_rewards>0?true:false);
+							if (!author_paid){
+								//if not, grab pending payout value
+								money_val = post.pending_payout_value;
+							}
+							money_val = money_val.replace('SBD','$');
+							money_val = money_val.replace('STEEM','$');
+							
+							//create a new entry
+							var entry = document.createElement('div');
+							entry.setAttribute('class','steemit-post-entry');
+							
+							//grab the details of the post
+							var post_details = '<a href="https://www.steemit.com'+post.url+'">'+post.title+'</a>';
+							
+							//add link to author name
+							post_details += '<br><a class="gk_steemit_author_name" href="https://www.steemit.com/@'+post.author+'">@'+post.author+'</a>';
+							
+							post_details += '<div class="gk_steemit_add_info">';
+							//append vote count onto it
+							// console.log(post.active_votes.length);
+							post_details += '&nbsp; '+post.active_votes.length+' <i class="fa fa-thumbs-up" aria-hidden="true"></i>';
+							
+							//append money value onto it
+							post_details += '&nbsp; '+money_val+'';
+							
+							//close href
+							post_details += '</div>';
+							entry.innerHTML = post_details;
+							//append it to the existing list
+							container.appendChild(entry);
+
+						});
+					}
+				});
+			});
+	</script>
+<?php
+}
