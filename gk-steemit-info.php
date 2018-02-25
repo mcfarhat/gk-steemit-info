@@ -3,13 +3,146 @@
   Plugin Name: GK Steemit Info
   Plugin URI: http://www.greateck.com/
   Description: A wordpress plugin that allows adding steem(it) (www.steemit.com) data to wordpress sites via widget or alternatively a shortcode
-  Version: 0.4.0
+  Version: 0.5.0
   Author: mcfarhat
   Author URI: http://www.greateck.com
   License: GPLv2
   License URI:  https://www.gnu.org/licenses/gpl-2.0.html
  */
- 
+
+/**
+ * Add new menu item for GK Steemit Info which would contain any other needed submenus
+ */
+function gk_steemit_add_info_menu_item(){
+	add_menu_page( 
+		__( 'GK Steemit Info', 'gk-steemit-info' ),
+		'GK Steemit Info',
+		'manage_options',
+		'create_steemit_user',
+		'create_steemit_user_handler',
+		plugins_url( 'gk-steemit-info/img/steem-logo.png' ),
+		6
+	); 
+}
+add_action( 'admin_menu', 'gk_steemit_add_info_menu_item' );
+
+/**
+ * Display content of create steemit user page
+ */
+
+function create_steemit_user_handler(){
+	?>
+	<head>
+	<!-- including steemjs library for performing calls -->
+	<script src="https://cdn.steemjs.com/lib/latest/steem.min.js"></script>
+	<!-- minor inline styling for page -->
+	<style>
+		#proceed_creation{
+			float: left;
+		}
+		#proceed_creation_img{
+			display: none;
+		}
+		#error_message{
+			color: red;
+		}
+		#steem_create_container .entry_label{
+			font-weight: bold;
+			float: left;
+			width: 15%;
+		}
+		#steem_create_container input{
+			
+		}
+	</style>
+	<script>
+		jQuery(document).ready(function($){
+			/* hook create button click to account creation function */
+			$('#proceed_creation').click(function(){
+				//disable button to prevent multiple creation
+				$('#proceed_creation').attr("disabled", "disabled");
+				//show loader
+				$('#proceed_creation_img').show();
+				//clear errors
+				$('#error_message').html('');
+				//set the proper steemit node to be used, otherwise default steem-js node will fail
+				steem.api.setOptions({ url: 'https://api.steemit.com' });
+				//grab new user account name
+				var new_account = $('#new_account').val();
+				//grab password
+				var wif = $('#new_account_wif').val();
+				//grab WIF of the user creating the account
+				var owner_wif = $('#owner_wif').val();
+				//grab name of user creating the account
+				var owner_account = $('#owner_account').val();
+				//grab fee amount in STEEM
+				var fee = $('#fee_amount').val()+" STEEM";
+				//grab VESTS amount
+				var delegation = $('#delegation_amount').val() + " VESTS";
+				//meta data and extensions can be left blank for now
+				var jsonMetadata = "";
+				var extensions = "";
+				/********************** process ****************************/
+				console.log('attempting creation of account:'+new_account);
+				//make sure account name is valid
+				var account_invalid = steem.utils.validateAccountName(new_account);
+				if (account_invalid == null){
+					//make sure account does not already exist
+					steem.api.getAccounts([new_account], function(err, result) {
+						console.log(err, result);
+						//no matches found
+						if (result.length==0){
+							/* if the code doesn't work, you might need to uncomment this, and change the wif at the top to password */
+							//var wif = steem.auth.toWif(new_account, pass, 'owner');
+							//generate the keys based on the account name and password
+							var publicKeys = steem.auth.generateKeys(new_account, wif, ['owner', 'active', 'posting', 'memo']);
+							var owner = { weight_threshold: 1, account_auths: [], key_auths: [[publicKeys.owner, 1]] };
+							var active = { weight_threshold: 1, account_auths: [], key_auths: [[publicKeys.active, 1]] };
+							var posting = { weight_threshold: 1, account_auths: [], key_auths: [[publicKeys.posting, 1]] };
+							//console.log(posting);
+							console.log(delegation);
+							steem.broadcast.accountCreateWithDelegation(owner_wif, fee, delegation, owner_account, new_account, owner, active, posting, publicKeys.memo, jsonMetadata, extensions, function(err, result) {
+								$('#error_message').html('Creating account '+new_account+' result: ' +err);
+								console.log(err, result);
+							});
+							/*steem.broadcast.accountCreate(owner_wif, fee, owner_account, new_account, owner, active, posting, publicKeys.memo, jsonMetadata, function(err, result) {
+							  console.log(err, result);
+							});*/
+						}else{
+							$('#error_message').html('Account '+new_account+' already exists');
+							console.log('Account '+new_account+' already exists');
+						}
+					});
+				}else{
+					$('#error_message').html(account_invalid);
+					console.log(account_invalid);
+				}
+				//hide loader
+				$('#proceed_creation_img').hide();
+				//reneable button
+				$('#proceed_creation').removeAttr('disabled');
+					
+			});
+			
+		});
+	</script>
+	</head>
+	<div class="wrap"><!--full page container-->
+		<h1><?php esc_html_e( 'Create New Steemit User', 'gk_steemit_info' );?></h1>
+		<div id="steem_create_container" name="steem_create_container">
+			<div class="row"><span class="entry_label"><label for="new_account">New Account Name</label></span>@<input id="new_account" name="new_account" type="text"></div>
+			<div class="row"><span class="entry_label"><label for="new_account_wif">New Accout Password</label></span><input id="new_account_wif" name="new_account_wif" type="password" size="50"><div><i>Suggest using <a href="http://passwordsgenerator.net/">http://passwordsgenerator.net/</a> for password generation, and set a min size of 50 chars. DO NOT INCLUDE symbols as those are invalid. Only combination of upper and lower case letters & numbers</i></div></div>
+			<div class="row"><span class="entry_label"><label for="owner_account">Owner Account Name</label></span>@<input id="owner_account" name="owner_account" type="text"><span id="owner_account_error" class="error_display"></span></div>
+			<div class="row"><span class="entry_label"><label for="owner_wif">Owner WIF/Private Key</label></span><input id="owner_wif" name="owner_wif" type="password" size="50"><span id="owner_wif_error" class="error_display"></span></div>
+			<div class="row"><span class="entry_label"><label for="fee_amount">Fee (in STEEM)</label></span><input id="fee_amount" name="fee_amount" type="number" value="0.200"> STEEM <i>(Amount will be passed to the new account. Suggested min 0.200 STEEM)</i><span id="fee_amount_error" class="error_display"></span></div>
+			<div class="row"><span class="entry_label"><label for="delegation_amount">Delegation (in VESTS)</label></span><input id="delegation_amount" name="delegation_amount" type="number" value="30663.815330"> VESTS <i>(default value 30663.815330 VESTS equates to 15 SP)</i><span id="delegation_amount_error" class="error_display"></span></div>
+			<div id="error_message" class="row"></div>
+			<div class="row"><input type="button" id="proceed_creation" value="Create"><img id="proceed_creation_img" class="gk-loader-img" src="<?php echo plugins_url();?>/gk-steemit-info/img/ajax-loader.gif"></div>
+		</div>
+	<div><!--wrap-->
+	<?php
+}
+
 /* handles tracking if required libraries have been added already */
 global $libraries_appended;
 $libraries_appended = false; 
@@ -60,6 +193,15 @@ function include_css_func(){
 	}
 	.steemit-post-entry{
 		padding: 8px;
+	}
+	.green-color{
+		color: green;
+	}
+	.red-color{
+		color: red;
+	}
+	.coinmarketcap-ref-info{
+		font-size: x-small;
 	}
 </style>
 
@@ -194,25 +336,8 @@ function steemit_count_renderer($refresh_frequency){
 								dataType: 'json',
 								success: function (data) { 
 									// console.log(parseFloat(data[0].price_usd).toFixed(2));
-									var content = '<b>STEEM/USD:</b> <br/>$'+parseFloat(data[0].price_usd).toFixed(2);
-									content += '<div class="gk_steemit_add_info">';
-									if (parseFloat(data[0].percent_change_1h) > 0){
-										content += ' 1h: <i class="fas fa-arrow-up"></i>';
-									}else{
-										content += ' 1h: <i class="fas fa-arrow-down"></i>';
-									}
-									if (parseFloat(data[0].percent_change_24h) > 0){
-										content += ' 24h: <i class="fas fa-arrow-up"></i>';
-									}else{
-										content += ' 24h: <i class="fas fa-arrow-down"></i>';
-									}
-									if (parseFloat(data[0].percent_change_7d) > 0){
-										content += ' 7d: <i class="fas fa-arrow-up"></i>';
-									}else{
-										content += ' 7d: <i class="fas fa-arrow-down"></i>';
-									}
-									content += ' Rank: '+data[0].rank;
-									content += '</div>';
+									var content = '<b>STEEM/USD:</b> <br/>$';
+									content += grab_proper_content(data);
 									$('#steem_price').html(content);
 								}
 							});
@@ -222,25 +347,8 @@ function steemit_count_renderer($refresh_frequency){
 								dataType: 'json',
 								success: function (data) { 
 									// console.log(parseFloat(data[0].price_usd).toFixed(2));
-									var content = '<b>SBD/USD:</b> <br/> $'+parseFloat(data[0].price_usd).toFixed(2);
-									content += '<div class="gk_steemit_add_info">';
-									if (parseFloat(data[0].percent_change_1h) > 0){
-										content += ' 1h: <i class="fas fa-arrow-up"></i>';
-									}else{
-										content += ' 1h: <i class="fas fa-arrow-down"></i>';
-									}
-									if (parseFloat(data[0].percent_change_24h) > 0){
-										content += ' 24h: <i class="fas fa-arrow-up"></i>';
-									}else{
-										content += ' 24h: <i class="fas fa-arrow-down"></i>';
-									}
-									if (parseFloat(data[0].percent_change_7d) > 0){
-										content += ' 7d: <i class="fas fa-arrow-up"></i>';
-									}else{
-										content += ' 7d: <i class="fas fa-arrow-down"></i>';
-									}
-									content += ' Rank: '+data[0].rank;
-									content += '</div>';
+									var content = '<b>SBD/USD:</b> <br/> $'
+									content += grab_proper_content(data);
 									$('#sbd_price').html(content);
 								}
 							});
@@ -257,6 +365,35 @@ function steemit_count_renderer($refresh_frequency){
 					<?php
 					}
 					?>
+					//common function handling grabbing data from coinmarketcap and formatting it properly
+					function grab_proper_content(data){
+						var content = parseFloat(data[0].price_usd).toFixed(2);
+						content += '<div class="gk_steemit_add_info"> ';
+						if (parseFloat(data[0].percent_change_1h) > 0){
+							content += ' <span class="green-color">';
+							content += ' 1h: <i class="fas fa-arrow-up"></i></span>';
+						}else{
+							content += ' <span class="red-color">';
+							content += ' 1h: <i class="fas fa-arrow-down"></i></span>';
+						}
+						if (parseFloat(data[0].percent_change_24h) > 0){
+							content += ' <span class="green-color">';
+							content += ' 24h: <i class="fas fa-arrow-up"></i></span>';
+						}else{
+							content += ' <span class="red-color">';
+							content += ' 24h: <i class="fas fa-arrow-down"></i></span>';
+						}
+						if (parseFloat(data[0].percent_change_7d) > 0){
+							content += ' <span class="green-color">';
+							content += ' 7d: <i class="fas fa-arrow-up"></i></span>';
+						}else{
+							content += ' <span class="red-color">';
+							content += ' 7d: <i class="fas fa-arrow-down"></i></span>';
+						}
+						content += ' Rank: '+data[0].rank;
+						content += '</div>';
+						return content;
+					}
 				});
 			}
 			//first call
@@ -271,10 +408,10 @@ function steemit_count_renderer($refresh_frequency){
 			<div id="steem_supply"></div>
 			<div id="steem_price"></div>
 			<div id="sbd_price"></div>
-			<span><i>Current Prices via <a href="https://coinmarketcap.com/">CoinMarketCap.com</a> API</i></span>
 			<br/>
 			<div><i>Your voice is worth something. Join the community that pays you to post and curate high quality content.<br/>
 			Check out <a href="https://www.steemit.com">Steemit.com</a></i></div>
+			<span class="coinmarketcap-ref-info"><i>Current Prices via <a href="https://coinmarketcap.com/">CoinMarketCap.com</a> API</i></span>
 		</div>
 <?php
 }
