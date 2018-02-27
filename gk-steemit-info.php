@@ -3,7 +3,7 @@
   Plugin Name: GK Steemit Info
   Plugin URI: http://www.greateck.com/
   Description: A wordpress plugin that allows adding steem(it) (www.steemit.com) data to wordpress sites via widget or alternatively a shortcode
-  Version: 0.5.0
+  Version: 0.5.0.1
   Author: mcfarhat
   Author URI: http://www.greateck.com
   License: GPLv2
@@ -131,7 +131,7 @@ function create_steemit_user_handler(){
 		<h1><?php esc_html_e( 'Create New Steemit User', 'gk_steemit_info' );?></h1>
 		<div id="steem_create_container" name="steem_create_container">
 			<div class="row"><span class="entry_label"><label for="new_account">New Account Name</label></span>@<input id="new_account" name="new_account" type="text"></div>
-			<div class="row"><span class="entry_label"><label for="new_account_wif">New Accout Password</label></span><input id="new_account_wif" name="new_account_wif" type="password" size="50"><div><i>Suggest using <a href="http://passwordsgenerator.net/">http://passwordsgenerator.net/</a> for password generation, and set a min size of 50 chars. DO NOT INCLUDE symbols as those are invalid. Only combination of upper and lower case letters & numbers</i></div></div>
+			<div class="row"><span class="entry_label"><label for="new_account_wif">New Account Password</label></span><input id="new_account_wif" name="new_account_wif" type="password" size="50"><div><i>Suggest using <a href="http://passwordsgenerator.net/">http://passwordsgenerator.net/</a> for password generation, and set a min size of 50 chars. DO NOT INCLUDE symbols as those are invalid. Only combination of upper and lower case letters & numbers</i></div></div>
 			<div class="row"><span class="entry_label"><label for="owner_account">Owner Account Name</label></span>@<input id="owner_account" name="owner_account" type="text"><span id="owner_account_error" class="error_display"></span></div>
 			<div class="row"><span class="entry_label"><label for="owner_wif">Owner WIF/Private Key</label></span><input id="owner_wif" name="owner_wif" type="password" size="50"><span id="owner_wif_error" class="error_display"></span></div>
 			<div class="row"><span class="entry_label"><label for="fee_amount">Fee (in STEEM)</label></span><input id="fee_amount" name="fee_amount" type="number" value="0.200"> STEEM <i>(Amount will be passed to the new account. Suggested min 0.200 STEEM)</i><span id="fee_amount_error" class="error_display"></span></div>
