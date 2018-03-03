@@ -1,172 +1,168 @@
-# Plugin Info
+# Plugin Informatie
 
-**Plugin Name**: GK Steemit Info<br/>
-**Contributors**: mcfarhat<br/>
+**Plugin Naam**: GK Steemit Info<br/>
+**Bijdragers**: mcfarhat<br/>
 **Tags**: wordpress, steemit, widget, user count<br/>
-**Requires at least**: 4.3<br/>
-**Tested up to**: 4.9<br/>
-**Stable tag**: trunk<br/>
-**License**: GPLv2 or later<br/>
-**License URI**: https://www.gnu.org/licenses/gpl-2.0.html<br/>
+**Minimale vereisten**: 4.3<br/>
+**Getest tot**: 4.9<br/>
+**Stabiele tag**: trunk<br/>
+**Licensie**: GPLv2 or later<br/>
+**Licensie URL**: https://www.gnu.org/licenses/gpl-2.0.html<br/>
 
-# Short Summary
+# Korte Samenvatting
 
-The plugin serves to be an innovative approach towards connecting steemit to wordpress. At its current phase, it allows adding one or more widgets/shortcodes that display steemit related info including some steem stats, user info, user posts, and trending posts along withh a bulk of filtering options, but also allows instantaneous creation of steemit users via Steem Power delegation
+De plugin dient een innovatieve benadering te zijn voor het verbinden van Steemit met Wordpress. In de huidige fase is het mogelijk 
+om een of meerdere widgets / shortcodes toe te voegen die Steemit- gerelateerde informatie kunnen weergeven, inclusief enkele Steemit- statistieken, gebruikersinformatie, berichten van gebruikers en populaire berichten, samen met een groot aantal filteropties, maar maakt het ook mogelijk om Steemit- gebruikers onmiddelijk aan te maken via het delegeren van Steem Power.
 
 # Plugin Details
 
-Steemit.com is a fast growing social network/blogging platform built on the steem blockchain, and that rewards authors and curators for quality content via the concept of upvotes (likes)
+Steemit.com is een snel groeiend sociaal netwerk / blogging platform gebouwd op de Steem Blockchain, en die beloont auteurs en curators voor kwaliteitsinhoud via het concept van upvotes (likes).
 
-We believe that providing proper means to integrate information from steemit into wordpress will lead the way for further growth to the platform, particularly via widgets/shortcodes as they are easiest to embed for any wordpress site owner, without needed development skills.
-
-Using GK Steemit Info, you now have the capability to create widgets or embed shortcodes to your wordpress solution but also to create new users on steemit, provided you are willing to delegate steem power to them
+Wij geloven dat het bieden van de juiste middelen om informatie uit Steemit te integreren in Wordpress een weg zal vinden voor verdere groei richting het platform, met name via widgets / shortcodes, omdat deze gemakkelijk te implementeren zijn voor iedere eigenaar van een Wordpress- site, zonder te hoeven beschikken over de nodige ontwikkelings- vaardigheden.
 
 ## Widgets/Shortcodes
 
-### Steemit User Info
+Door GK Steemit Info te gebruiken, heeft u de mogelijkheid om widgets te maken of shortcodes in te sluiten in uw Wordpress oplossing, maar ook nieuwe gebruikers op Steemit aanmaken, op voorwaarde dat u Steem Power aan de nieuwe account delegeert.
 
-This widget allows the display of one or more steemit user(s) info via widgets/shortcodes. 
-Upon dragging and dropping widget "Steemit User Info", you have the capability to specificy a user whose info you would like to be displayed.
-The information will auto-refresh every 30 seconds, and includes the following details:
-- username
-- user profile image
-- about section
-- location
-- website
-- total post count
-- STEEM Power including own steem power (SP), delegated SP, received SP, and Effective SP (after adding and removing received and delegated SP)
-- STEEM and SBD balances
-- Current Voting Power
-- Reputation
-- Estimated Accout Value as pulled from steemit (which is average STEEM/SBD USD value over last 7 days)
-- Real Time Account Value calculated real-time against STEEM and SBD current USD market value as pulled from <a href="coinmarketcap.com">coinmarketcap.com's API</a>
+### Steemit Gebruikersgegevens
 
-Check out screenshots 1, 2, and 3 below for a highlight of the widget, its configuration options, and the sample outcome of the widget.
+Deze widget maakt het mogelijk om informatie van één of meer Steemit gebruiker(s) weer te geven via widgets / shortcodes. Bij het slepen en neerzetten van de widget "Steemit User Info", krijgt u de mogelijkheid om te selecteren van wie u de informatie wilt weergeven. 
+De weergegeven informatie zal vervolgens elke 30 seconden automatisch worden vernieuwd en bevat de volgende details:
+- Gebruikersnaam.
+- Afbeelding gebruikersprofiel.
+- Veld 'meer info'.
+- Locatie.
+- Website.
+- Totaal aantal berichten.
+- STEEM Power inclusief eigen STEEM Power (SP), gedelegeerde SP, ontvangen SP, en effectieve SP (na het toevoegen en verwijderen van onvangen en gedelegeerde SP).
+- STEEM en SBD actuele waarde.
+- Actuele stemkracht.
+- Reputatie.
+- Geschatte accountwaarde opgehaald uit Steemit (wat het gemiddelde is van de STEEM / SBD USD waarde van de afgelopen 7 dagen).
+- Realtime accountwaarde berekend met de realtime STEEM en SBD USD marktwaarde zoals afgeleid uit de <a href="coinmarketcap.com">coinmarketcap.com's API</a>
 
-A shortcode version is also available to be used on any page and/or via code. Via using the code: [steemit_user_info username=USERNAME] whereby username is the username of the steemit account.
+Bekijk screenshots 1, 2 en 3 hieronder voor een impressie van de widget, de configuratieopties, en het proefresultaat van de widget.
+
+Er is ook een shortcode versie beschikbaar, die op elke pagina gebruikt kan worden of in code. De code hiervoor is: [steemit_user_info username=USERNAME] waarbij username de gebruikersnaam is van het Steemit account.
 
 ### Steemit User Posts
 
-We decided to add this widget due to its importance in highlighting the steemit posts by the owner of the wordpress site, or any other steemit author the site owner would like to highlight.
-This provides the flexibility to display within a widget or more, or within a specific page(s) dedicated for steemit posts, a multitude of posts which are filtered by particular authors, while giving you the flexibility to configure the different params.
-The widget will actually display a listing of posts, one on each line, whereby the title is shown along with a link to the original steemit posts, including the number of votes (likes) the post received, as well as the payment amount associated with the post in STEEM units (whether it has been paid or is still pendin payout)
+We hebben besloten om deze nieuwe widget toe te voegen, omdat markeren van de Steemit berichten belangrijk is voor de eigenaar van de Wordpress site of elke andere Steemian die de eigenaar wil benadrukken. Dit biedt flexibiliteit om binnen een of meerdere widgets, of binnen specifieke pagina's voor Steemit berichten een groot aantal berichten weer te geven die zijn gefilterd op bepaalde auteurs, waarbij je de flexibiliteit hebt om verschillende parameters in te stellen. De widget toont een lijst met berichten, één op elke lijn, waarvan de titel wordt weergegeven met een link naar het originele Steemit bericht, inclusief het aantal stemmen (votes) die het bericht heeft ontvangen en het uitbetalingsbedrag dat is gekoppeld aan de post in STEEM (of de beloningen zijn uitbetaald óf nog uitbetaald moeten worden).
 
-Check out screenshots 4, 5, and 6 below for a highlight of the widget, its configuration options, and the sample outcome of the widget.
+Bekijk de schermafbeeldingen 4, 5 en 6 hieronder voor een hoogtepunt van de widget, de configuratie- opties en een voorbeeld van de opgegeven instellingen verwerkt in de widget.
 
-In details, once adding the widget to your specific sidebar, you have default pre-selected configuration, which can also be adjusted to configure your widget(s), as follows:
-- Title: This refers to the title/header of your widget
-- Steemit Username: this refers to the username of the author of the posts on steemit, WITHOUT the leading @. In case the author does not exist, no results will be returned.
-- Max Post Count: this limit allows capping the number of posts being returned by the widget. The smaller the amount, the quicker the result. This is due to querying the steemjs API. Default value is set at 10, and the maximum is capped at 100 to avoid timeouts.
-- Filter by Tag: this allows filtering the posts of the selected authoer by a specific tag. This can be very useful if under one widget you would like to display a reference to your "photography" tagged posts, while on another you would like to display your "crypto" tagged posts, or "wordpress" tags. 
-- Exclude resteems: If you do not want to display posts that you have resteemed, we have given you the option right there. Default value is for resteems to be included. 
-- Minimum Pay: Steemit is all about payments for posts. If you would like to only show posts which have yielded a particular minimum amount of gains, you are able to do so here. The value you provide will match the steem value returned by the post, whether it has already been paid or is still pending payout. Default value is 0 meaning all posts will be returned.
-Please note that adjusting those filtering values could result in the SteemJS API taking more time to return your posts.
+In detail uitgewerkt, wanneer de widget eenmaal is toegevoegd aan jouw specifieke zijbalk, heeft deze de standaard voorgeselecteerde instellingen die u kunt wijzigen om uw widget verder in te stellen. Dit werkt als volgt:
+- Titel: dit refereert aan de titel / kop van jouw widget.
+- Steemit Gebruikersnaam: dit refereert aan de gebruikersnaam of de auteur van het bericht op Steemit, zonder de @ te gebruiken. In het geval de ingevoerde gebruiker niet bestaat, zal er geen resultaat worden weergegeven.
+- Max. aantal berichten: met deze limiet kunt u het aantal berichten dat aan de widget worden toegekend beperken. En hoe kleiner het aantal, hoe sneller het resultaat zal worden weergegeven. Dit komt door de wachtrij van de steemjs API. De standaardwaarde voor het max. aantal berichten staat ingesteld op 10, en het maximum aantal bedraagt 100. Dit om timeouts te voorkomen.
+- Filteren op tag: hiermee kunt u de berichten van de geselecteerde auteur filteren op specifieke tags. Dit kan erg handig zijn, wanneer je bijvoorbeeld een referentie wilt weergeven naar jouw berichten met de tag "fotografie", terwijl je in een andere widget je berichten met de tag "crypto" of "wordpress" kan weergeven.
+- Gedeelde berichten uitsluiten: Als je geen berichten wilt weergeven die je gedeeld hebt van andere gebruikers, heb je de optie om deze niet weer te geven. De standaard instelling voor gedeelde berichten staat ingeschakeld. 
+- Minimum betaling: Steemit draait grotendeels om de beloningen voor berichten. Als u alleen berichten wilt weergeven die een bepaald minimumbedrag hebben opgehaald, kan je dat hier instellen. De waarde die u hier ingeeft staat gelijk aan de waarde in STEEM die aan de post wordt uitbetaald, of deze al is uitbetaald of nog uitbetaald moet worden. Houd er rekening mee dat het aanpassen van deze waarden voor de SteemJSD API meer tijd nodig hebben, voordat de berichten kunnen worden weergegeven.
+Een versie met shortcode is tevens beschikbaar voor gebruik op elke pagina met content of in uw dynamische code. Deze is bereikbaar door de volgende code toe te passen: [steemit_user_posts username=USERNAME limit=LIMIT excluderesteem=1 minpay=0 filtertag=TAG]
+waarbij: 
+- Username (Vereist) is de Steemit gebruikersnaam, zijnde het doel.
+- Limit (Optioneel) is de bovenste limiet van het aantal berichten om weer te geven.
+- Excluderesteem (Optioneel) staat toe om gedeelde berichten van andere gebruikers te vermijden en zal resulteren in de weergave van alleen de originele berichten van deze auteur.
+- Minpay (Optioneel) instelling waarbij u een minimum bedrag op kunt geven om alleen berichten weer te geven waarbij minimaal het ingestelde bedrag zal terugkeren als beloning voor het bericht. llows setting a minimum payment amount of the post to be returned back and displayed.
+- Filtertag (Optioneel) staat toe berichten te filteren op één specifieke tag, zodat berichten zonder deze tag niet weergegeven zullen worden.
 
-A shortcode version is also available for use on any page's content or within your dynamic code. This is accessible via utilizing the following code: [steemit_user_posts username=USERNAME limit=LIMIT excluderesteem=1 minpay=0 filtertag=TAG]
-whereby: 
-- username (Required) is the target steemit username
-- limit (Optional) is the top limit of the number of posts to be shown
-- excluderesteem (Optional) allows to avoid displaying resteemed posts and will only result in originally created posts by this author to be displayed
-- minpay (Optional) allows setting a minimum payment amount of the post to be returned back and displayed.
-- filtertag (Optional) allows filtering by one specific tag so that posts that do NOT contain this tag will not be returned back
+### Populaire Steemit Berichten
 
-### Steemit Trending Posts
+Het doel van deze widget is om snelle toegang te verlenen en zichtbaarheid via jouw wordpress site / installatie in de populaire berichten die momenteel op Steemit worden weergegeven.
+Deze widget biedt meerdere configuratie- mogelijkheden en kan makkelijk versleept en geplaatst worden binnen het widgets gebied, maar biedt ook ondersteuning bij het gebruik van shortcode om zo de info in uw pagina te verwerken..
+Configuratie- mogelijkheden:
+- Maximaal aantal berichten: om het maximaal aantal weer te geven posts te kunnen bepalen. Standaarwaarde is 10, max is 100. 
+- Filteren op tag: Niet ingevuld, zullen alle berichten worden weergegeven, wel ingevuld zullen alleen berichten met deze specifieke tag worden weergegeven.
 
-The purpose of this widget is to allow quick access and visibility via your wordpress site/installation into the trending posts currently on display on steemit.
-The widget allows several configuration options and can be easily dragged/dropped within the widgets area, but also supports the use of a shortcode to plug the info into a page/code.
-Configuration options include:
-- Max Post Count: to control the max number of posts to be displayed. Default value is 10, max is 100.
-- Filter by Tag: if left blank, all trending posts will be retrieved regardless of any tag. If set, only posts belonging to this particular tag will be fetched.
+Bekijk onderstaande schermafbeeldingen 7, 8 en 9 voor een hoogtepunt van de widget, de configuratie- opties, en de voorbeelduitkomst van de widget.
 
-Check out screenshots 7, 8, and 9 below for a highlight of the widget, its configuration options, and the sample outcome of the widget.
-
-In terms of shortcode support, the following shortcode can be used for such display: [steemit_trending_posts limit=LIMIT filtertag=TAG]
-whereby:
-- limit is an optional attrtibute that defaults to 10 if not set.
-- filtertag is an optional attribute, the lack of which would display all trending posts. Alternatively setting this value to a single tag would allow the display of only posts relevant to this particular tag.
+In termen van ondersteuning voor shortcode, kan de volgende shortcode gebruikt worden voor deze weergave: [steemit_trending_posts limit=LIMIT filtertag=TAG]
+waarbij:
+- limiet is een optioneel attribuut dat standaard staat ingesteld op 10.
+- filteren van tags is een optioneel attribuut, waarmee weergave van alle populaire berichten kan worden beperkt. Als alternatieve instelling kan deze waarde één tag bevatten, waardoor alleen de berichten met deze specifieke tag worden weergegeven.
 
 ### Steemit Info
 
-In its first version, the plugin allowed embedding a widget that displays the current number of users registered on steemit, at this instant over 740,000 users are registered on steemit.
-The widget has been upgraded and improved now, with additional functionality. 
-It allows you to set a proper title for the widget, but also to set the data refresh frequency. The default value is at 5,000 ms (5 seconds), and can be increased in increments of 500 ms (half a second) each. This flexibility is provided to your as a wordpress site owner if you have any other computing intensive functionality on your site.
-In its current version, the widget allows the display of: 
-- steemit user count
-- SBD and STEEM current supply, as provided via steem js API.
-- STEEM/USD and SBD/USD current price, as provided via <a href="coinmarketcap.com">CoinMarketCap.com's API</a> along with the 1 hour, 24 hour, and 7 day move (upwards or downwards trend), as well as the rank of the currency at the moment in relevance to other crypto currencies.
+In zijn eerste versie, kon de plugin een widget weergeven die liet zien hoeveel gebruikers er op Steemit geregisteerd zijn. Er zijn nu al meer dan 740.000 registraties op Steemit.
+De widget is nu verbeterd en geüpgradet, met een uitgebreide functionaliteit. 
+Nu is het mogelijk om je widget een titel te geven, maar ook de vernieuwings- frequentie zak worden ingesteld. De standaard waarde hiervan staat ingesteld opm 5,000 ms (5 seconden), en kan worden verhoogd naar waarden tot 500 ms (een halve seconde). Deze flexibiliteit wordt jou als wordpress site eigenaar ter beschikking gesteld als computerintensieve functionaliteit op uw site. 
+In zijn huidigde versie, bestaat het display van de widget uit: 
+- steemit aantal gebruikers.
+- SBD and STEEM huidige waarde, aangeleverd via steem js API.
+- STEEM/USD en SBD/USD huidige waarde, aangeleverd via <a href="coinmarketcap.com">CoinMarketCap.com's API</a> voorzien van de 1 uurs, 24 uurs, en 7 dagen beweging (opwaarts en neergaande trend), alswel de rangorde van de valuta's op dit moment gerelateerd aan andere cryptocurrencies.
 
-Check out screenshots 10, 11, and 12 below for a highlight of the widget, its configuration options, and the sample outcome of the widget.
+Bekijk onderstaande schermafbeeldingen 10, 11 en 12 voor een hoogtepunt van de widget, de configuratie- opties, en de voorbeelduitkomst van de widget.
 
-The widget also includes a link to refer people to steemit.com as a promotional aspect of the widget.
+De widget zal ook een link bevatten die refereert naar mensen op steemit.com als promotioneel aspect van de widget.
 
-You can alternatively use the shortcode version, through using [steemit_user_count refresh_frequency=5000] whereby refresh_frequency (optional) defines how often to refresh fetching the data. You can skip on setting this param and it defaults to 5,000 ms (5 seconds).
+U kunt als alternatief gebruik maken van de shortcode versie, door de volgende code te gebruiken [steemit_user_count refresh_frequency=5000] waarbij vernieuwingsfrequentie (optioneel) instelt hoe vaak data ververst wordt. U kunt deze instelling overslaan, zodat de standaardwaarden van 5,000 ms (5 seconden) worden gehanteerd.
 
 ## Backend Management
 
 ### Create New Steemit User
 
-The plugin provides also a backend menu that allows the instantaneous creation of new steemit users. Upon setup, a new menu will be made available within the wordpress backend management interface, whereby a left menu icon "GK Steemit" will be added (see screenshot 13 below)
-Clicking on this menu item will open the interface for the new user creation (see screenshot 14 below).
-The interface includes the following field:
-- New Account Name: which identifies the new user name to be created. This is WITHOUT the standard @ symbol
-- New Account Password: which is the password/WIF to be used for this account. We recommend creating a complex password, preferably using <a href="http://passwordsgenerator.net/">http://passwordsgenerator.net/</a> and setting a minimum of 50 characters. Do make sure NOT to include symbols, as those will cause a validation error on account creation and are not supported by steemit API. You will need to only use caps and small letters and numbers.
-- Owner Account Name: which identifies your account, or whoever account that is being used for the creation of the new account, and whose SP will be used for the delegation. Again @ symbol should NOT be included
-- Owner WIF/Private Key: which relates to the owner account, and is sent over to the API to create and delegate the amount to the new account
-- Fee (in STEEM): this is a required value to be sent over when creating the account, and which will eventually land into the actual account. Recommended amount is 0.200 STEEM. Only enter numeric value in the field.
-- Delegation (in VESTS): this is the amount of VESTS that will be delegated from the creator account to the new account. The default value 30663.815330 VESTS equates to 15 SP. While you can increase this amount, yet decreasing it can lead to error creating the account.
+De plug-in biedt ook een backend- menu, waarmee nieuwe Steemit- gebruikers direct kunnen worden aangemaakt. Na de installatie wordt een nieuw menu beschikbaar gesteld binnen de Wordpress Backend Management Interface, waarbij een linker menu- pictogram "GK Steemit" zal worden toegevoegd. (zie schermafbeelding 13 hieronder).
+Door op dit menuitem te klikken opent er een nieuwe interface waar een nieuwe gebruiker kan worden aangemaakt (zie schermafbeelding 14 hieronder).
+Deze interface bevat de volgende velden:
+- Nieuw Account Naam: hier kan de nieuwe gebruikersnaam worden opgegeven. Voer de gewenste nasam in zonder het @ teken. 
+- Nieuw Account Wachtwoord: Dit is het wachtwoord / WIF die gekoppeld wordt aan deze account. We raden aan een complex wachtwoord te creeëren, bij voorkeur met een <a href="http://passwordsgenerator.net/">http://passwordsgenerator.net/</a> en minimaal 50 karakters. Zorg ervoor dat u geen symbolen aan het wachtwoord toevoegt, omdat deze een validatiefout zullen veroorzaken tijdens het aanmaken van de account en niet ondersteund worden door Steemit API. U wordt verzocht alleen hoofdletters, kleine letters en numerieke tekens te gebruiken.
+- Eigenaar Account Naam: dit identificeert uw eigen account, of welke andere account gebruikt wordt voor het aanmaken van de nieuwe account, en wiens SP gebruikt zal worden voor het delegeren. Nogmaals wijs ik u erop dat het @ teken niet voor de accountnaam geplaatst moet worden.
+- Eigenaar WIF/Private Key: verwijst naar de account van de eigenaar, en wordt via API verzonden voor het aanmaken en het delegeren van het bedrag naar de nieuwe account.
+- Fooi (in STEEM): dit is een vereist bedrag dat wordt verzonden tijdens het creeëren van de nieuwe account, en zal uiteindelijk in de nieuwe account belanden. Aangeraden wordt een bedrag van 0.200 STEEM. Geef alleen numerieke waarden op in dit veld.
+- Delegatie (in VESTS): Dit is het bedrag aan VESTS dat zal worden gedelegeerd vanuit de eigenaar account naar de nieuwe account. De standaardwaarde bedraagt 30663.815330 VESTS en staat gelijk aan 15 SP. Dit bedrag kan je indien gewenst verhogen, echter zal verlagen van dit bedrag kunnen leiden tot fouten in het creeëren van de account.
 
-Upon clicking the create button, checks will be made to ensure that the user name is of proper format, does not exist, and that the amounts of fee and delegation are proper. The notification area right above the button will either display an error message or a confirmation of what occurred. (Check screenshot 15 below which is showing an existing account message).
+Wanneer u op de knop creeëren klikt, wordt er eerst gecheckt of de gebruikersnaam die u heeft ingevoerd een geldig formaat heeft, niet bestaat, en of het bedrag aan fooi en delegatie juist zijn.Het meldingsscherm rechts boven de knop zal een foutmelding of een bevestiging van de handeling weergeven. (Bekijk schermafbeelding 15 onderaan om een bestaande melding van een account kunt zien).
 
-Keep in mind that after creating an account and delegating SP to it, you can eventually cancel the delegation, yet an account WITHOUT at least 15 SP cannot function properly on steemit, but also the delegation amount will take 7 days to return to the creator account.
+Wees u ervan bewust dat na het aanmaken van een account en SP gedelegeerd te hebben, uw delegatie eventueel geannuleerd kan worden. Echter zal een account met minder dan 15 SP niet goed kunnen functioneren op Steemit, maar het duurt 7 dagen voordat de gedelegeerde SP naar de account van de eigenaar zal terugkeren. 
 
-## Installation 
+## Installatie
 
-1. Upload the plugin files to the `/wp-content/plugins/gk-steemit-info` directory, or install the plugin through the WordPress plugins screen directly.
-2. Activate the plugin through the 'Plugins' screen in WordPress
-3. a. Go to the appearance -> widgets screen, and then select which widget(s) among the ones labeled as "Steemit" you would like to add to your visual display, and then configure them accordingly. You can add multiple entries of each widget with different configurations
-3. b. Alternatively use the relevant shortcodes highlighted above on any page or within your code.
-4. A new menu will also added to the wordpress backend administration under the name "GK Steemit Info" which provides access to the Steemit User Creation functionality.
-5. That's it! 
+1. Upload de plugin bestanden naar de `/wp-content/plugins/gk-steemit-info` map, of installeer de plugin direct vanuit het Wordpress plugins scherm.
+2. Activeer de plugin via het 'Plugins' scherm in Wordpresss.
+3. a. Ga naar weergave -> widgets scherm, en selecteer welke widget(s) tussen degene met het label "Steemit" u toe wilt voegen aan uw visuele scherm, en configureer deze overeenkomstig. U kunt meerdere invoeren toevoegen voor elke widget met verschillende instellingen. 
+3. b. Als alternatief kunt u de relevante shortcodes gebruiken die boven elke pagina gemarkeerd in uw code worden weergegeven.
+4. Een nieuw menu zal aan de Wordpress backend adminstratie worden toegevoegd onder de naam "GK Steemit Info" waarmee u toegang heeft tot de Steemit gebruiker aanmaken functionaliteit.
+5. Dat is het! 
 
 ## Screenshots
-1. <a href="https://www.dropbox.com/s/8q2m7prow3ro13h/steemit_user_info_widget.png?dl=0">Screenshot showing the Steemit User Info widget on the selection screen</a>
-2. <a href="https://www.dropbox.com/s/dgo0619z1826nts/steemit_user_info_configuration.png?dl=0">Screenshot showing the configuration options of the Steemit User Info widget</a>
-3. <a href="https://www.dropbox.com/s/0h4bdhm5oryyaqz/steemit_user_info_sample_display.png?dl=0">Screenshot of a sample outcome of the Steemit User Info widget</a>
-4. <a href="https://www.dropbox.com/s/vngf4dt3h9zdgys/steemit_user_posts_widget.png?dl=0">Screenshot showing the new Steemit User Posts widget on the selection screen</a>
-5. <a href="https://www.dropbox.com/s/21q53wkxfsj50ev/steemit_user_posts_configuration.png?dl=0">Screenshot showing the configuration options of the Steemit User Posts widget</a>
-6. <a href="https://www.dropbox.com/s/96q2l09bnqe6uzi/display_steemit_user_posts.png?dl=0">Screenshot of a sample outcome of the Steemit User Posts widget with default configurations</a>
-7. <a href="https://www.dropbox.com/s/qo0qtymzzf1tjma/steemit_trending_posts_widget.png?dl=0">Screenshot showing the Steemit Trending Posts widget on the selection screen</a>
-8. <a href="https://www.dropbox.com/s/fl0l2gkbh4mfvct/steemit_trending_posts_configuration.png?dl=0">Screenshot showing the configuration options of the Steemit Trending Posts widget</a>
-9. <a href="https://www.dropbox.com/s/rzbwmmif49d2e82/steemit_trending_posts_display.png?dl=0">Screenshot of a sample outcome of the Steemit Trending Posts widget</a>
-10. <a href="https://www.dropbox.com/s/macix3vv85gme2b/new_widget.png?dl=0">Screenshot showing the new "Steemit Info Widget"</a>
-11. <a href="https://www.dropbox.com/s/stgttgdgrvpncx1/widget_options.png?dl=0">Screenshot showing the options of the widget once added</a>
-12. <a href="https://www.dropbox.com/s/8v86dvzbxo8nfz0/display_steemit_user_count.png?dl=0">Screenshot of a sample outcome of the Steemit Info Widget</a>
-13. <a href="https://www.dropbox.com/s/ovg9zx5ex62ll5a/create_steemit_user_menu.png?dl=0">Screenshot of the backend GK Steemit Info menu item</a>
-14. <a href="https://www.dropbox.com/s/o2nds07etxxjkc6/create_steemit_user_interface.png?dl=0">Screenshot of the new steemit user creation screen</a>
-15. <a href="https://www.dropbox.com/s/klyt9a2101s7l0f/create_steemit_user_notification.png?dl=0">Notification Area</a>
+1. <a href="https://www.dropbox.com/s/8q2m7prow3ro13h/steemit_user_info_widget.png?dl=0">Schermafbeelding van Steemit gebruikersinformatie widget op het selectiescherm</a>
+2. <a href="https://www.dropbox.com/s/dgo0619z1826nts/steemit_user_info_configuration.png?dl=0">Schermafbeelding van configuratieopties voor Steemit gebruikersinformatie widget</a>
+3. <a href="https://www.dropbox.com/s/0h4bdhm5oryyaqz/steemit_user_info_sample_display.png?dl=0">schermafbeelding van een proefuitkomst van Steemit gebruikersinformatie widget</a>
+4. <a href="https://www.dropbox.com/s/vngf4dt3h9zdgys/steemit_user_posts_widget.png?dl=0">schermafbeelding van nieuwe Steemit gebruikersbericht widget op het selectiescherm</a>
+5. <a href="https://www.dropbox.com/s/21q53wkxfsj50ev/steemit_user_posts_configuration.png?dl=0">schermafbeelding van configuratieopties van een Steemit gebruikersbericht widget</a>
+6. <a href="https://www.dropbox.com/s/96q2l09bnqe6uzi/display_steemit_user_posts.png?dl=0">schermafbeelding van een proefuitkomst van een Steemit gebruikersbericht widget met standaard configuratie- instellingen</a>
+7. <a href="https://www.dropbox.com/s/qo0qtymzzf1tjma/steemit_trending_posts_widget.png?dl=0">schermafbeelding van populaire Steemit berichten widget op het selectiescherm</a>
+8. <a href="https://www.dropbox.com/s/fl0l2gkbh4mfvct/steemit_trending_posts_configuration.png?dl=0">schermafbeelding met de configuratieopties van Steemit Populaire Berichten widget</a>
+9. <a href="https://www.dropbox.com/s/rzbwmmif49d2e82/steemit_trending_posts_display.png?dl=0">schermafbeelding van proefuitkomst Steemit Populaire Berichten widget</a>
+10. <a href="https://www.dropbox.com/s/macix3vv85gme2b/new_widget.png?dl=0">Schermafbeelding met de nieuwe "Steemit" Info widget</a>
+11. <a href="https://www.dropbox.com/s/stgttgdgrvpncx1/widget_options.png?dl=0">Schermafbeelding die de opties laat zien als de widget is toegevoegd</a>
+12. <a href="https://www.dropbox.com/s/8v86dvzbxo8nfz0/display_steemit_user_count.png?dl=0">Schermafbeelding van proefuitkomst Steemit info widget</a>
+13. <a href="https://www.dropbox.com/s/ovg9zx5ex62ll5a/create_steemit_user_menu.png?dl=0">Schermafbeelding backend GK Steemit Info menu item</a>
+14. <a href="https://www.dropbox.com/s/o2nds07etxxjkc6/create_steemit_user_interface.png?dl=0">Schermafbeelding van het nieuwe steemit gebruiker aanmaak scherm</a>
+15. <a href="https://www.dropbox.com/s/klyt9a2101s7l0f/create_steemit_user_notification.png?dl=0">Weergeven meldingen</a>
 
 ## Changelog
 
 ### 0.5.0
-- Adding support for creating steemit users instantaneously via a backend interface while utilizing some delegation from existing accounts.
-- Adding color indicators for SBD & STEEM price modifications across 1h, 24h, and 7d
-- Refactoring coinmarketcap code into single function
-- Changing coinmarketcap reference to smaller text to become less intrusive
-- New screenshot uploaded to replace existing Steemit Info widget outdated screenshot
+- Toegevoegde ondersteuning voor het direct aanmaken van Steemit gebruikers via een back- end interface, waar een kleine delegatie van bestaande gebruikers nodig is.
+- Kleur indicatoren toegevoegd voor SBD & STEEM prijswijzigingen in 1h,24h en 7d.
+- Gerefabriceerde coinmarketcap code naar single functie.
+- Gewijzigde referentie naar Coinmarketcap met smallere tekst uitnodigender ogend.
+- Nieuwe schermafbeelding geüpload als vervanging voor bestaande Steemit Info widget gedateerde schermafbeelding.
 
 ### 0.4.0
-- New widget for display of trending posts with optional tag filtering and post count limit
-- Additional information for STEEM/SBD pricing including 24h and 7d change indicator for steemit info widget
-- New real-time balance calculation for account balance to single user info widget
-- Improved formatting for post info (upvotes/payment)
+- Nieuwe widget voor het scherm populaire berichten met optionele tag filters en limiet voor het aantal berichten.
+- Extra informatie voor STEEM/SBD prijzen inclusief 24h en 7d veranderings- indicator voor Steemit info widget.
+- Nieuwe real-time waarde berekening voor account waarde voor enkele gebuiker info widget.
+- Verbeterde invoer voor berichten info (upvotes/beloningen).
 
 ### 0.3.0
-- Created new widget/shortcode for steemit user information, including name, image, SP, STEEM, SBD, VP, Reputation,... with backend selection of which user to display info for. Multiple widgets are supported.
-- Modified existing Steemit info widget to include new information, including STEEM and SBD current supply, but also more importantly now pulling current STEEM and SBD pricing from coinmarketcap, and being displayed along with 1 hour indicator, as well as currency ranking data
+- Nieuwe widget / shortcode gemaakt voor Steemit gebruikers informatie, inclusief naam, afbeelding, SP, STEEM, SBD, VP, Reputatie,... met backend selectievoor welke gebruiker info wordt weergegeven. Meerdere widgets worden ondersteund.
+- Aangepaste bestaande Steemit info widget om nieuwe informatie toe te voegen, inclusief STEEM en SBD's huidige aanbod, maar nog belangrijker dat de actuele STEEM en SBD prijs rechtstreeks van coinmarketcap wordt gehaald, en wordt weergegeven als 1 uurs indicator, alswel de huidige plaats op de valuta ranglijst.
 
 ### 0.2.0
-Adding support for Steemit User Posts widget and shortcode along with filtering and multiple widget support
-Fix for steemjs issue breaking functionality due to move to api.steem.com
+Ondersteuning toegevoegd voor Steemit Gebruikers- berichten widget, shortcode met filters en ondereteuning voor meerdere widgets.
+Fix voor steemjs kwestie haperende functionaliteit tijdens de beweging naar api.steem.com.
 
 ### 0.1.0
-Initial Version
+Initiële Versie.
