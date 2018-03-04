@@ -3,7 +3,7 @@
   Plugin Name: GK Steemit Info
   Plugin URI: http://www.greateck.com/
   Description: A wordpress plugin that allows adding steem(it) (www.steemit.com) data to wordpress sites via widget or alternatively a shortcode
-  Version: 0.5.0.1
+  Version: 0.6.0
   Author: mcfarhat
   Author URI: http://www.greateck.com
   License: GPLv2
@@ -102,7 +102,11 @@ function create_steemit_user_handler(){
 							//console.log(posting);
 							console.log(delegation);
 							steem.broadcast.accountCreateWithDelegation(owner_wif, fee, delegation, owner_account, new_account, owner, active, posting, publicKeys.memo, jsonMetadata, extensions, function(err, result) {
-								$('#error_message').html('Creating account '+new_account+' result: ' +err);
+								if (err != null){
+									$('#error_message').html('Creating account '+new_account+' result: ' +err);
+								}else{
+									$('#error_message').html('Creating account '+new_account+' result: ' +result);
+								}
 								console.log(err, result);
 							});
 							/*steem.broadcast.accountCreate(owner_wif, fee, owner_account, new_account, owner, active, posting, publicKeys.memo, jsonMetadata, function(err, result) {
@@ -419,7 +423,7 @@ function steemit_count_renderer($refresh_frequency){
 
 /**************************************************************/
 
-/* Creating widget handling steemit user count */
+/* Creating widget handling steemit user posts */
 class steemit_user_posts_widget extends WP_Widget {
 	function __construct() {
 		parent::__construct(
@@ -894,6 +898,15 @@ function steemit_user_info_renderer($username, $contentid){
 							$('#voting_power<?php echo $contentid;?>').text('Voting Power: '+(parseInt(userinfo.voting_power)/100)+'%');
 							$('#reputation<?php echo $contentid;?>').text('Reputation: '+steem.formatter.reputation(userinfo.reputation));
 							
+							//grab and display follower and following count
+							steem.api.getFollowCount('<?php echo $username;?>', function(err, result) {
+								//console.log(err, result);
+								if (!err) {
+									$('#followers<?php echo $contentid;?>').text('Followers: '+result.follower_count);
+									$('#following<?php echo $contentid;?>').text('Following: '+result.following_count);
+								}
+							});
+							
 						});
 					});
 
@@ -920,6 +933,8 @@ function steemit_user_info_renderer($username, $contentid){
 			<div id="sbd<?php echo $contentid;?>"></div>
 			<div id="voting_power<?php echo $contentid;?>"></div>
 			<div id="reputation<?php echo $contentid;?>"></div>
+			<div id="followers<?php echo $contentid;?>"></div>
+			<div id="following<?php echo $contentid;?>"></div>			
 			<div id="account_balance<?php echo $contentid;?>"></div>
 			<div id="realtime_balance<?php echo $contentid;?>"></div>
 		</div>
@@ -1075,7 +1090,7 @@ function steemit_trending_posts_renderer($postcount, $posttag, $contentid){
 						/* replacing map with each to allow breaking out */
 						$.each (posts, function (index, post){
 						//posts.map(function (post) {
-							console.log(post);
+							// console.log(post);
 							var post_json_meta = JSON.parse(post.json_metadata);
 							// console.log(post_json_meta.tags);
 							
@@ -1123,3 +1138,190 @@ function steemit_trending_posts_renderer($postcount, $posttag, $contentid){
 	</script>
 <?php
 }
+
+/**************************************************************/
+
+/* Creating widget handling display of steemit user voted posts */
+class steemit_user_voted_posts_widget extends WP_Widget {
+	function __construct() {
+		parent::__construct(
+		'steemit_user_voted_posts_widget',
+		__('Steemit User Voted Posts Widget', 'gk_steemit_info'),
+		array( 'description' => __( 'Widget Allowing Display of Posts Voted Posts', 'gk_steemit_info' ), )
+		);
+	}
+	// Creating widget front-end
+	public function widget( $args, $instance ) {
+		$title = apply_filters( 'steemit_user_voted_posts_widget_title', $instance['title'] );
+		
+		//making room for hook display by any theme
+		echo $args['before_widget'];
+		if ( ! empty( $title ) )
+			echo $args['before_title'] . $title . $args['after_title'];
+			
+		//grab username and post count params
+		$username = apply_filters( 'steemit_username_widget', $instance['steemit_username'] );
+		$postcount = apply_filters( 'steemit_post_count_widget', $instance['steemit_post_count'] );
+		
+		//widget container unique identifier based on timestamp
+		$date = new DateTime();
+		$contentid = $date->getTimestamp().mt_rand(1,4000);
+		//display output in the widget
+		steemit_user_voted_posts_renderer($username, $postcount, $contentid);
+		
+		//making room for hook display by any theme
+		echo $args['after_widget'];
+	}
+	// Widget Backend
+	public function form( $instance ) {
+		//grab presaved values
+		if ( isset( $instance[ 'title' ] ) ) {
+			$title = $instance[ 'title' ];
+		}
+		else {
+			$title = __( 'User Voted Posts On Steemit', 'gk_steemit_user_posts' );
+		}
+		$steemit_username = "";
+		$steemit_post_count = "";
+		if ( isset( $instance[ 'steemit_username' ] ) ) {
+			$steemit_username = $instance[ 'steemit_username' ];
+		}
+		if ( isset( $instance[ 'steemit_post_count' ] ) ) {
+			$steemit_post_count = $instance[ 'steemit_post_count' ];
+		}
+		
+		// Widget admin form
+		?>
+		<p>
+		<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label>
+		<input type="text" class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo esc_attr( $title ); ?>" />
+		</p>
+		<p><label for="<?php echo $this->get_field_id( 'steemit_username' ); ?>">Steemit Username:</label>
+		@<input type="text" class="text" id="<?php echo $this->get_field_id( 'steemit_username' ); ?>" name="<?php echo $this->get_field_name( 'steemit_username' ); ?>" value="<?php echo esc_attr( $steemit_username ); ?>"></p>
+		<p><label for="<?php echo $this->get_field_id( 'steemit_post_count' ); ?>">Max Post Count:</label>
+		<input type="number" class="text" id="<?php echo $this->get_field_id( 'steemit_post_count' ); ?>" name="<?php echo $this->get_field_name( 'steemit_post_count' ); ?>" step="1" min="1" max="50" value="<?php echo esc_attr( $steemit_post_count ); ?>"></p>
+		<?php
+	}
+	// Updating widget replacing old instances with new
+	public function update( $new_instance, $old_instance ) {
+		$instance = array();
+		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
+		$instance['steemit_username'] = ( ! empty( $new_instance['steemit_username'] ) ) ? $new_instance['steemit_username'] : '';
+		$instance['steemit_post_count'] = ( ! empty( $new_instance['steemit_post_count'] ) ) ? $new_instance['steemit_post_count'] : '';
+		return $instance;
+	}
+}
+
+/* Register and load the widget*/
+function gk_load_steemit_user_voted_posts_widget() {
+    register_widget( 'steemit_user_voted_posts_widget' );
+}
+add_action( 'widgets_init', 'gk_load_steemit_user_voted_posts_widget' ); 
+ 
+/* shortcode to display steemit user count on front end. 
+Use it in format [steemit_user_voted_posts username=USERNAME limit=LIMIT] */
+add_shortcode('steemit_user_voted_posts', 'display_steemit_user_voted_posts' );
+
+function display_steemit_user_voted_posts( $atts, $content = "" ) {
+	//grab values
+	$username = $inner_atts['username'];
+	$postcount = $inner_atts['limit'];
+	//widget container unique identifier based on timestamp
+	$date = new DateTime();
+	$contentid = $date->getTimestamp().mt_rand(1,4000);
+	//call rendering function
+	steemit_user_voted_posts_renderer($username, $postcount, $contentid);
+}
+
+/* function handling the display of the selected users' posts */
+function steemit_user_voted_posts_renderer($username, $postcount, $contentid){
+	if ($username == ''){
+		echo 'Steemit username not provided';
+		return;
+	}
+	//if postcount not properly provided and within 1 - 100, default to 10
+	if (!is_numeric ($postcount) || (is_numeric($postcount) && ($postcount<1 || $postcount>100))){
+		$postcount = 10;
+	}
+	global $libraries_appended;
+	if (!$libraries_appended){
+?>
+		<!-- including fontawesome -->
+		<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+		<!-- including steemjs library for performing calls -->
+		<script src="https://cdn.steemjs.com/lib/latest/steem.min.js"></script>
+		<!-- including jQuery -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>	
+<?php
+		$libraries_appended = true;
+	}
+?>
+
+	<div>
+		<div id="user_voted_posts_container<?php echo $contentid;?>">
+			<!-- default loader -->
+			<img class="gk-loader-img" src="<?php echo plugins_url();?>/gk-steemit-info/img/ajax-loader.gif">
+		</div>
+		
+	</div>	
+	<script>
+			/* when properly loaded, call steem API method to grab recent voted posts by selected username and display them */
+			jQuery(document).ready(function($){
+				//fix for migration to api.steemit.com
+				steem.api.setOptions({ url: 'https://api.steemit.com' });
+				
+				//grab account name
+				var user_account = '<?php echo $username;?>';
+					
+				var container = document.getElementById('user_voted_posts_container<?php echo $contentid;?>');
+				//call getAccountVotes to grab user's latest voted posts
+				steem.api.getAccountVotes(user_account, function (err, posts) {
+					// console.log(err, discussions);
+					if (!err) {
+						var post_limit = <?php echo $postcount;?>;
+						
+						//remove loader / empty container
+						container.innerHTML="";
+						
+						//reverse the array to display most recent votes first
+						posts = posts.reverse();
+						
+						//the actual max number of posts to be displayed - making sure the user has enough votes to display
+						var top_limit = (posts.length > post_limit)?post_limit:posts.length;
+							
+						/* loop through the voted posts and only display up to set limit */
+						for (var i=0;i<top_limit;i++){
+							// console.log(posts[i]);
+							//create a new entry
+							var entry = document.createElement('div');
+							entry.setAttribute('class','steemit-post-entry');
+							
+							//grab the details of the post
+							var post_details = '<a href="https://www.steemit.com/@'+posts[i].authorperm+'">'+posts[i].authorperm+'</a>';
+							
+							//add details about the author
+							var post_author = posts[i].authorperm.split('/')[0];
+							post_details += '<br><a class="gk_steemit_author_name" href="https://www.steemit.com/@'+post_author+'">@'+post_author+'</a>';
+							
+							//add additional details here
+							post_details += '<div class="gk_steemit_add_info">';
+							
+							//append vote percentage onto it
+							post_details += '&nbsp; '+parseInt(posts[i].percent)/100+'% ';
+							
+							//close href
+							post_details += '</div>';
+							
+							entry.innerHTML = post_details;
+							//append it to the existing list
+							container.appendChild(entry);
+							
+						}
+					}
+				});
+			});
+	</script>
+<?php
+}
+
+/*********************************************************************/
