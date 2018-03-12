@@ -2,7 +2,7 @@
 
 **Plugin Name**: GK Steemit Info<br/>
 **Contributors**: mcfarhat<br/>
-**Tags**: wordpress, steemit, widget, user count<br/>
+**Tags**: wordpress, steemit, widget, user count, user registration<br/>
 **Requires at least**: 4.3<br/>
 **Tested up to**: 4.9<br/>
 **Stable tag**: trunk<br/>
@@ -11,7 +11,7 @@
 
 # Short Summary
 
-The plugin serves to be an innovative approach towards connecting steemit to wordpress. At its current phase, it allows adding one or more widgets/shortcodes that display steemit related info including some steem stats, user info, user posts, and trending posts along withh a bulk of filtering options, but also allows instantaneous creation of steemit users via Steem Power delegation
+The plugin serves to be an innovative approach towards connecting steemit to wordpress. At its current phase, it allows adding one or more widgets/shortcodes that display steemit related info including some steem stats, user info, user posts, user upvotes (likes), trending posts along with a bulk of filtering options, but also allows instantaneous creation of steemit users via Steem Power delegation
 
 # Plugin Details
 
@@ -38,6 +38,8 @@ The information will auto-refresh every 30 seconds, and includes the following d
 - STEEM and SBD balances
 - Current Voting Power
 - Reputation
+- Followers Count
+- Following Count
 - Estimated Accout Value as pulled from steemit (which is average STEEM/SBD USD value over last 7 days)
 - Real Time Account Value calculated real-time against STEEM and SBD current USD market value as pulled from <a href="coinmarketcap.com">coinmarketcap.com's API</a>
 
@@ -75,6 +77,7 @@ whereby:
 The purpose of this widget is to allow quick access and visibility via your wordpress site/installation into the trending posts currently on display on steemit.
 The widget allows several configuration options and can be easily dragged/dropped within the widgets area, but also supports the use of a shortcode to plug the info into a page/code.
 Configuration options include:
+- Title: This refers to the title/header of your widget
 - Max Post Count: to control the max number of posts to be displayed. Default value is 10, max is 100.
 - Filter by Tag: if left blank, all trending posts will be retrieved regardless of any tag. If set, only posts belonging to this particular tag will be fetched.
 
@@ -82,7 +85,7 @@ Check out screenshots 7, 8, and 9 below for a highlight of the widget, its confi
 
 In terms of shortcode support, the following shortcode can be used for such display: [steemit_trending_posts limit=LIMIT filtertag=TAG]
 whereby:
-- limit is an optional attrtibute that defaults to 10 if not set.
+- limit is an optional attribute that defaults to 10 if not set.
 - filtertag is an optional attribute, the lack of which would display all trending posts. Alternatively setting this value to a single tag would allow the display of only posts relevant to this particular tag.
 
 ### Steemit Info
@@ -100,6 +103,23 @@ Check out screenshots 10, 11, and 12 below for a highlight of the widget, its co
 The widget also includes a link to refer people to steemit.com as a promotional aspect of the widget.
 
 You can alternatively use the shortcode version, through using [steemit_user_count refresh_frequency=5000] whereby refresh_frequency (optional) defines how often to refresh fetching the data. You can skip on setting this param and it defaults to 5,000 ms (5 seconds).
+
+### Steemit User Voted Posts
+
+The purpose of this widget is to allow quick access and visibility via your wordpress site/installation into the posts voted by a specific user, allowing the display of each post's link, along with the vote percent cast by the user. This gives a quick history/perspective about the user's likes. The posts are sorted by the most recent ones.
+The widget allows several configuration options and can be easily dragged/dropped within the widgets area, but also supports the use of a shortcode to plug the info into a page/code.
+Configuration options include:
+- Title: This refers to the title/header of your widget.
+- Steemit Username: Defining the user whose voted posts will be rendered. Simply enter the steemit username, without the leading @ symbol.
+- Max Post Count: To control the max number of posts to be displayed. Default value is 10, max is 100.
+
+Check out screenshots 16, 17, and 18 below for a highlight of the widget, its configuration options, and the sample output of the widget.
+
+In terms of shortcode support, the following shortcode can be used for such display: [steemit_user_voted_posts username=USERNAME limit=LIMIT]
+whereby:
+- username (Required) is the target steemit username whose voted posts are to be displayed.
+- limit (Optional) is the top limit of the number of posts to be shown
+
 
 ## Backend Management
 
@@ -144,8 +164,16 @@ Keep in mind that after creating an account and delegating SP to it, you can eve
 13. <a href="https://www.dropbox.com/s/ovg9zx5ex62ll5a/create_steemit_user_menu.png?dl=0">Screenshot of the backend GK Steemit Info menu item</a>
 14. <a href="https://www.dropbox.com/s/o2nds07etxxjkc6/create_steemit_user_interface.png?dl=0">Screenshot of the new steemit user creation screen</a>
 15. <a href="https://www.dropbox.com/s/klyt9a2101s7l0f/create_steemit_user_notification.png?dl=0">Notification Area</a>
+16. <a href="https://www.dropbox.com/s/d4x3fomh6ezzqc9/steemit_user_voted_posts_widget.png?dl=0">Screenshot showing the Steemit User Voted Posts widget on the selection screen</a>
+17. <a href="https://www.dropbox.com/s/i9xyh5h8cr08c99/steemit_user_voted_posts_configuration.png?dl=0">Screenshot showing the configuration options of the Steemit User Voted Posts widget</a>
+18. <a href="https://www.dropbox.com/s/w1tohwteylaumsl/steemit_user_voted_posts_display.png?dl=0">Screenshot of a sample outcome of the Steemit User Voted Posts widget</a>
 
 ## Changelog
+
+### 0.6.0
+- Adding new widget/shortcode to display specific user's voted posts
+- Adding follower and following count under steemit user info widget
+- Fixing issue with display of some users' info under steemit user info widget
 
 ### 0.5.0
 - Adding support for creating steemit users instantaneously via a backend interface while utilizing some delegation from existing accounts.
