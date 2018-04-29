@@ -1,0 +1,88 @@
+/* admin page user creation styling */
+#proceed_creation{
+	float: left;
+}
+#proceed_creation_img{
+	display: none;
+}
+#error_message{
+	color: red;
+}
+#steem_create_container .entry_label{
+	font-weight: bold;
+	float: left;
+	width: 15%;
+}
+
+/* styling settings for the different widgets */
+
+.gk-loader-img{
+	display: block;
+	margin: auto;
+}
+.steemit_user_info{
+	text-align: center;
+}
+.steemit_user_img{
+	width: 50px;
+}
+.gk_steemit_add_info{
+	float: right;
+}
+.gk_steemit_author_name{
+	font-style: italic;
+}
+.steemit-post-entry{
+	padding: 8px;
+}
+.green-color{
+	color: green;
+}
+.red-color{
+	color: red;
+}
+.coinmarketcap-ref-info{
+	font-size: x-small;
+}
+
+/* styling settings for the post layout and the new widget result steemit post tags */
+.steemit-post-entry{
+	border: 2px solid #06D6A9;
+	border-radius: 5px;
+	margin: 10px;
+	background: lightgray;
+}
+.gk_steemit_add_info{
+	float: none;
+}
+.steemit-post-img{
+	border-radius: 5px;
+	/*max-width: 25%;*/
+	margin-right: 10px;
+	margin-bottom: 10px;
+}
+.steemit-post-voters, .steemit-post-voters-widget{
+	display: inline-block;
+}
+/* widget specific settings (for minimal display) where we hide image, description, and tags */
+.steemit-post-img-container-widget, .steemit-post-desc-widget, .steemit-post-tags-widget{
+	display: none;
+}
+.steemit-post-img-container{
+	float: left;
+	width: 50%;
+	display: inline-block;
+}
+.gk_post_content_details{
+	display: inline-block;
+	width: 80%;
+}
+.steemit-post-voters{
+	float: right;
+}
+.steemit-post-desc{
+	float: left;
+	width: 50%;
+	display: inline-block;
+	padding-left: 10px;
+}

@@ -3,7 +3,7 @@
   Plugin Name: GK Steemit Info
   Plugin URI: http://www.greateck.com/
   Description: A wordpress plugin that allows adding steem(it) (www.steemit.com) data to wordpress sites via widget or alternatively a shortcode
-  Version: 0.6.0
+  Version: 0.7.0
   Author: mcfarhat
   Author URI: http://www.greateck.com
   License: GPLv2
@@ -26,6 +26,30 @@ function gk_steemit_add_info_menu_item(){
 }
 add_action( 'admin_menu', 'gk_steemit_add_info_menu_item' );
 
+
+
+/* add support for some cool jquery effects */
+
+function gk_steemit_info_scripts_enq(){
+	//adding jquery cool effects
+	wp_enqueue_script( 'jquery-effects-core' );
+	wp_enqueue_script( 'jquery-effects-highlight' );
+	
+	//adding plugin's stylesheet file for front end use
+	wp_register_style('gk_steemit_info_reg', plugins_url('style.css',__FILE__ ));
+    wp_enqueue_style('gk_steemit_info_reg');	
+}
+
+add_action( 'wp_enqueue_scripts', 'gk_steemit_info_scripts_enq' );
+
+/* enqueuing style.css file for admin section */
+function gk_steemit_info_reg(){
+	wp_register_style('gk_steemit_info_reg', plugins_url('style.css',__FILE__ ));
+    wp_enqueue_style('gk_steemit_info_reg');
+}
+
+add_action( 'admin_init','gk_steemit_info_reg');
+
 /**
  * Display content of create steemit user page
  */
@@ -35,26 +59,6 @@ function create_steemit_user_handler(){
 	<head>
 	<!-- including steemjs library for performing calls -->
 	<script src="https://cdn.steemjs.com/lib/latest/steem.min.js"></script>
-	<!-- minor inline styling for page -->
-	<style>
-		#proceed_creation{
-			float: left;
-		}
-		#proceed_creation_img{
-			display: none;
-		}
-		#error_message{
-			color: red;
-		}
-		#steem_create_container .entry_label{
-			font-weight: bold;
-			float: left;
-			width: 15%;
-		}
-		#steem_create_container input{
-			
-		}
-	</style>
 	<script>
 		jQuery(document).ready(function($){
 			/* hook create button click to account creation function */
@@ -173,47 +177,9 @@ function include_js_func(){
 	</script>
 	<?php
 }
-//function to include required CSS adjustments
-function include_css_func(){
 
-?>
-
-<style>
-	.gk-loader-img{
-		display: block;
-		margin: auto;
-	}
-	.steemit_user_info{
-		text-align: center;
-	}
-	.steemit_user_img{
-		width: 50px;
-	}
-	.gk_steemit_add_info{
-		float: right;
-	}
-	.gk_steemit_author_name{
-		font-style: italic;
-	}
-	.steemit-post-entry{
-		padding: 8px;
-	}
-	.green-color{
-		color: green;
-	}
-	.red-color{
-		color: red;
-	}
-	.coinmarketcap-ref-info{
-		font-size: x-small;
-	}
-</style>
-
-<?php
-}
 //hook ito wp_head to append JS and CSS functionality
 add_action('wp_head', 'include_js_func');
-add_action('wp_head', 'include_css_func');
  
 /* Creating widget handling steemit user count */
 class steemit_info_widget extends WP_Widget {
@@ -281,10 +247,10 @@ add_action( 'widgets_init', 'gk_load_steemit_info_widget' );
 Use it in format [steemit_user_count refresh_frequency=8000] */
 add_shortcode('steemit_user_count', 'display_steemit_user_count' );
 
-function display_steemit_user_count( $atts, $content = "" ) {
+function display_steemit_user_count( $inner_atts, $content = "" ) {
 	$inner_atts = shortcode_atts( array(
         'refresh_frequency' => 5000,
-    ), $atts );
+    ), $inner_atts );
 	$refresh_frequency = $inner_atts['refresh_frequency'];
 	if (!is_numeric ($refresh_frequency) || (is_numeric($refresh_frequency) && $refresh_frequency<5000)){
 		$refresh_frequency = 5000;
@@ -533,10 +499,10 @@ add_action( 'widgets_init', 'gk_load_steemit_user_posts_widget' );
 Use it in format [steemit_user_posts username=USERNAME limit=LIMIT excluderesteem=1 minpay=0 filtertag=TAG] */
 add_shortcode('steemit_user_posts', 'display_steemit_user_posts' );
 
-function display_steemit_user_posts( $atts, $content = "" ) {
+function display_steemit_user_posts( $inner_atts, $content = "" ) {
 	/*$inner_atts = shortcode_atts( array(
         'refresh_frequency' => 5000,
-    ), $atts );*/
+    ), $inner_atts );*/
 	$username = $inner_atts['username'];
 	$postcount = $inner_atts['limit'];
 	$excluderesteem = $inner_atts['excluderesteem'];
@@ -628,7 +594,8 @@ function steemit_user_posts_renderer($username, $postcount, $excluderesteem, $po
 						/* replacing map with each to allow breaking out */
 						$.each (posts, function (index, post){
 						//posts.map(function (post) {
-							// console.log(post);
+						
+							//grab post's json_meta
 							var post_json_meta = JSON.parse(post.json_metadata);
 							// console.log(post_json_meta.tags);
 							
@@ -789,7 +756,7 @@ add_action( 'widgets_init', 'gk_load_steemit_user_info_widget' );
 Use it in format [steemit_user_info username=USERNAME] */
 add_shortcode('steemit_user_info', 'display_steemit_user_info' );
 
-function display_steemit_user_info( $atts, $content = "" ) {
+function display_steemit_user_info( $inner_atts, $content = "" ) {
 	$username = $inner_atts['username'];
 	//widget container unique identifier based on timestamp
 	$date = new DateTime();
@@ -1025,7 +992,7 @@ add_action( 'widgets_init', 'gk_load_steemit_trending_posts_widget' );
 Use it in format [steemit_trending_posts limit=LIMIT filtertag=TAG] */
 add_shortcode('steemit_trending_posts', 'display_steemit_trending_posts' );
 
-function display_steemit_trending_posts( $atts, $content = "" ) {
+function display_steemit_trending_posts( $inner_atts, $content = "" ) {
 	$postcount = $inner_atts['limit'];
 	$posttag = $inner_atts['filtertag'];
 	if (empty($posttag)){
@@ -1147,7 +1114,7 @@ class steemit_user_voted_posts_widget extends WP_Widget {
 		parent::__construct(
 		'steemit_user_voted_posts_widget',
 		__('Steemit User Voted Posts Widget', 'gk_steemit_info'),
-		array( 'description' => __( 'Widget Allowing Display of Posts Voted Posts', 'gk_steemit_info' ), )
+		array( 'description' => __( 'Widget Allowing Display of User Voted Posts', 'gk_steemit_info' ), )
 		);
 	}
 	// Creating widget front-end
@@ -1222,7 +1189,7 @@ add_action( 'widgets_init', 'gk_load_steemit_user_voted_posts_widget' );
 Use it in format [steemit_user_voted_posts username=USERNAME limit=LIMIT] */
 add_shortcode('steemit_user_voted_posts', 'display_steemit_user_voted_posts' );
 
-function display_steemit_user_voted_posts( $atts, $content = "" ) {
+function display_steemit_user_voted_posts( $inner_atts, $content = "" ) {
 	//grab values
 	$username = $inner_atts['username'];
 	$postcount = $inner_atts['limit'];
@@ -1317,6 +1284,387 @@ function steemit_user_voted_posts_renderer($username, $postcount, $contentid){
 							container.appendChild(entry);
 							
 						}
+					}
+				});
+			});
+	</script>
+<?php
+}
+
+/*********************************************************************/
+
+/* Creating widget handling steemit tag filtered with focus on voters */
+class steemit_tag_voted_posts_widget extends WP_Widget {
+	function __construct() {
+		parent::__construct(
+		'steemit_tag_voted_posts_widget',
+		__('Steemit Tag Filtered Voted Posts Widget', 'gk_steemit_info'),
+		array( 'description' => __( 'Widget Allowing Display of Specific Posts Based on Tags and Upvoters', 'gk_steemit_info' ), )
+		);
+	}
+	// Creating widget front-end
+	public function widget( $args, $instance ) {
+		$title = apply_filters( 'steemit_tag_voted_posts_widget_title', $instance['title'] );
+		
+		//making room for hook display by any theme
+		echo $args['before_widget'];
+		if ( ! empty( $title ) )
+			echo $args['before_title'] . $title . $args['after_title'];
+			
+		//grab post count params
+		$postcount = apply_filters( 'steemit_post_count_widget', $instance['steemit_post_count'] );
+		$posttag = apply_filters( 'steemit_post_tag_widget', $instance['steemit_post_tag'] );
+		$postvoters = apply_filters( 'steemit_post_voters_widget', $instance['steemit_post_voters_tag'] );
+		$restrictvotedposts = apply_filters( 'steemit_restrict_voted_posts', $instance['steemit_restrict_voted_posts'] ) ? true : false ;
+		$postexcludevoters = apply_filters( 'steemit_post_excluded_voters_tag', $instance['steemit_post_excluded_voters_tag'] );
+		$allowfrontendfilter = apply_filters( 'steemit_allow_frontend_filter', $instance['steemit_allow_frontend_filter'] ) ? true : false ;
+		$iswidget = 1;
+		
+		//set as false by default
+		if ($restrictvotedposts==''){
+			$restrictvotedposts = false;
+		}
+		
+		//widget container unique identifier based on timestamp
+		$date = new DateTime();
+		$contentid = $date->getTimestamp().mt_rand(1,4000);
+		//display output in the widget
+		steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $restrictvotedposts, $postexcludevoters, $allowfrontendfilter, $contentid, $iswidget);
+		
+		//making room for hook display by any theme
+		echo $args['after_widget'];
+	}
+	// Widget Backend
+	public function form( $instance ) {
+		//grab presaved values
+		if ( isset( $instance[ 'title' ] ) ) {
+			$title = $instance[ 'title' ];
+		}
+		else {
+			$title = __( 'Tag Posts Steemit', 'gk_steemit_tag_voted_posts' );
+		}
+		
+		$steemit_post_tag = "";
+		$steemit_post_count = "";
+		$steemit_post_voters_tag = "";
+		$steemit_restrict_voted_posts = "";
+		$steemit_post_excluded_voters_tag = "";
+		$steemit_allow_frontend_filter = "";
+
+		if ( isset( $instance[ 'steemit_post_count' ] ) ) {
+			$steemit_post_count = $instance[ 'steemit_post_count' ];
+		}
+		if ( isset( $instance[ 'steemit_post_voters_tag' ] ) ) {
+			$steemit_post_voters_tag = $instance[ 'steemit_post_voters_tag' ];
+		}
+		if ( isset( $instance[ 'steemit_post_excluded_voters_tag' ] ) ) {
+			$steemit_post_excluded_voters_tag = $instance[ 'steemit_post_excluded_voters_tag' ];
+		}
+		if ( isset( $instance[ 'steemit_restrict_voted_posts' ] ) ) {
+			$steemit_restrict_voted_posts = $instance[ 'steemit_restrict_voted_posts' ];
+		}		
+		if ( isset( $instance[ 'steemit_post_tag' ] ) ) {
+			$steemit_post_tag = $instance[ 'steemit_post_tag' ];
+		}
+		if ( isset( $instance[ 'steemit_allow_frontend_filter' ] ) ) {
+			$steemit_allow_frontend_filter = $instance[ 'steemit_allow_frontend_filter' ];
+		}
+		
+		// Widget admin form
+		?>
+		<p>
+		<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:' ); ?></label>
+		<input type="text" class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo esc_attr( $title ); ?>" />
+		</p>
+		<p><label for="<?php echo $this->get_field_id( 'steemit_post_count' ); ?>">Max Post Count:</label>
+		<input type="number" class="text" id="<?php echo $this->get_field_id( 'steemit_post_count' ); ?>" name="<?php echo $this->get_field_name( 'steemit_post_count' ); ?>" step="1" min="1" max="50" value="<?php echo esc_attr( $steemit_post_count ); ?>"></p>
+		<p><label for="<?php echo $this->get_field_id( 'steemit_post_tag' ); ?>">Filter by Tag:</label>
+		<input type="text" class="text" id="<?php echo $this->get_field_id( 'steemit_post_tag' ); ?>" name="<?php echo $this->get_field_name( 'steemit_post_tag' ); ?>" value="<?php echo esc_attr( $steemit_post_tag ); ?>"></p>
+		<p><label for="<?php echo $this->get_field_id( 'steemit_post_voters_tag' ); ?>">Voters:</label>
+		<input type="text" class="text" id="<?php echo $this->get_field_id( 'steemit_post_voters_tag' ); ?>" name="<?php echo $this->get_field_name( 'steemit_post_voters_tag' ); ?>" value="<?php echo esc_attr( $steemit_post_voters_tag ); ?>"></p>
+		<p><label for="<?php echo $this->get_field_id( 'steemit_restrict_voted_posts' ); ?>">Only Include Voted Posts:</label>
+		<input type="checkbox" id="<?php echo $this->get_field_id( 'steemit_restrict_voted_posts' ); ?>" name="<?php echo $this->get_field_name( 'steemit_restrict_voted_posts' ); ?>" <?php if ($steemit_restrict_voted_posts){ echo "checked";}?>></p>
+		<?php /*<p><label for="<?php echo $this->get_field_id( 'steemit_post_excluded_voters_tag' ); ?>">Exclude Voters:</label>
+		<input type="text" class="text" id="<?php echo $this->get_field_id( 'steemit_post_excluded_voters_tag' ); ?>" name="<?php echo $this->get_field_name( 'steemit_post_excluded_voters_tag' ); ?>" value="<?php echo esc_attr( $steemit_post_excluded_voters_tag ); ?>"></p>*/?>
+		<p><label for="<?php echo $this->get_field_id( 'steemit_allow_frontend_filter' ); ?>">Allow Front End Filtering:</label>
+		<input type="checkbox" id="<?php echo $this->get_field_id( 'steemit_allow_frontend_filter' ); ?>" name="<?php echo $this->get_field_name( 'steemit_allow_frontend_filter' ); ?>" <?php if ($steemit_allow_frontend_filter){ echo "checked";}?>></p>
+		<?php
+	}
+	// Updating widget replacing old instances with new
+	public function update( $new_instance, $old_instance ) {
+		$instance = array();
+		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
+		$instance['steemit_post_tag'] = ( ! empty( $new_instance['steemit_post_tag'] ) ) ? $new_instance['steemit_post_tag'] : '';
+		$instance['steemit_post_count'] = ( ! empty( $new_instance['steemit_post_count'] ) ) ? $new_instance['steemit_post_count'] : '';
+		$instance['steemit_post_voters_tag'] = ( ! empty( $new_instance['steemit_post_voters_tag'] ) ) ? $new_instance['steemit_post_voters_tag'] : '';
+		$instance['steemit_restrict_voted_posts'] = $new_instance['steemit_restrict_voted_posts'];
+		$instance['steemit_post_excluded_voters_tag'] = ( ! empty( $new_instance['steemit_post_excluded_voters_tag'] ) ) ? $new_instance['steemit_post_excluded_voters_tag'] : '';
+		$instance['steemit_allow_frontend_filter'] = ( ! empty( $new_instance['steemit_allow_frontend_filter'] ) ) ? true : false;
+		return $instance;
+	}
+}
+
+/* Register and load the widget*/
+function gk_load_steemit_tag_voted_posts_widget() {
+    register_widget( 'steemit_tag_voted_posts_widget' );
+}
+add_action( 'widgets_init', 'gk_load_steemit_tag_voted_posts_widget' ); 
+ 
+/* shortcode to display steemit user count on front end. 
+Use it in format [steemit_tag_voted_posts filtertag=TAG limit=LIMIT voters=VOTER1,VOTER2 restrictvotedonly=0 excludevoters=VOTER1,VOTER2 showfilters=0] */
+add_shortcode('steemit_tag_voted_posts', 'display_steemit_tag_voted_posts' );
+
+function display_steemit_tag_voted_posts( $inner_atts, $content = "" ) {
+	/*$inner_atts = shortcode_atts( array(
+        'refresh_frequency' => 5000,
+    ), $inner_atts );*/
+	
+	//grab the different sent params, making sure to provide default values for params that can be skipped
+	$posttag = isset($inner_atts['filtertag']) ? $inner_atts['filtertag'] : '';
+	$postcount = isset($inner_atts['limit']) ? $inner_atts['limit'] : '10';
+	$postvoters = isset($inner_atts['voters']) ? $inner_atts['voters'] : '';
+	$restrictvotedposts = isset($inner_atts['restrictvotedonly']) ? $inner_atts['restrictvotedonly'] : false;
+	$postexcludevoters = isset($inner_atts['excludevoters']) ? $inner_atts['excludevoters'] : '';
+	$allowfrontendfilter = isset($inner_atts['showfilters']) ? $inner_atts['showfilters'] : false;
+	$iswidget = 0;
+	
+	if (empty($posttag)){
+		$posttag = '';
+	}
+	
+	//widget container unique identifier based on timestamp
+	$date = new DateTime();
+	$contentid = $date->getTimestamp().mt_rand(1,4000);
+	steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $restrictvotedposts, $postexcludevoters, $allowfrontendfilter, $contentid, $iswidget);
+}
+
+/* function handling the display of the selected users' posts */
+function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $restrictvotedposts, $postexcludevoters, $allowfrontendfilter, $contentid, $iswidget){
+
+	//if postcount not properly provided and within 1 - 100, default to 10
+	if (!is_numeric ($postcount) || (is_numeric($postcount) && ($postcount<1 || $postcount>100))){
+		$postcount = 10;
+	}
+	//avoiding pointless re-inclusion of libraries if already included
+	global $libraries_appended;
+	if (!$libraries_appended){
+?>
+		<!-- including fontawesome -->
+		<script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+		<!-- including steemjs library for performing steem related calls -->
+		<script src="https://cdn.steemjs.com/lib/latest/steem.min.js"></script>
+		<!-- including jQuery -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>	
+<?php
+		$libraries_appended = true;
+	}
+?>
+	<div>
+<?php
+		//if front end filtering is enabled, display filtering criteria
+		
+		if ($allowfrontendfilter){
+			//TODO: Preparation for upcoming functionality, to be implemented
+			//echo '>Filter on';
+		}
+?>
+		<div id="tag_voted_posts_container<?php echo $contentid;?>">
+			<!-- default loader -->
+			<img class="gk-loader-img" src="<?php echo plugins_url();?>/gk-steemit-info/img/ajax-loader.gif">
+		</div>
+		
+	</div>	
+	<script>
+			/* when properly loaded, call steem API method to grab created posts by selected tag and additional params and display them */
+			jQuery(document).ready(function($){
+				//fix for migration to api.steemit.com
+				steem.api.setOptions({ url: 'https://api.steemit.com' });
+
+				//setup query to grab proper posts with limit and/or tag
+				var query = {
+					<?php 
+					//no need to include tag if not set
+					if ($posttag!=''){?>
+					tag: '<?php echo $posttag;?>',
+					<?php } ?>
+					limit: <?php echo $postcount;?>,
+				};
+				
+				var container = document.getElementById('tag_voted_posts_container<?php echo $contentid;?>');
+				//call getDiscussionsByCreated to grab steemit latest posts by tag
+				steem.api.getDiscussionsByCreated(query, function (err, posts) {
+					console.log(err, posts);
+					if (!err) {
+					
+						//grab passed vals to be used in JS
+						// var included_post_count = 0;
+						var post_limit = <?php echo $postcount;?>;
+						var filter_tag = '<?php echo $posttag; ?>';
+						
+						//remove loader / empty container
+						container.innerHTML="";
+						
+						/* loop through all results */
+						$.each (posts, function (index, post){
+						//posts.map(function (post) {
+							// console.log(post);
+							var post_json_meta = JSON.parse(post.json_metadata);
+							// console.log(post_json_meta.tags);
+							
+							/* check if any of the post's voters are part of our selection to highlight them */
+							//convert list of voters to array
+							var voters_list = <?php echo json_encode(explode(",",$postvoters));?>;
+							//contains the list of matching voters that we should display
+							var displayable_voters = [];
+							// console.log(voters_list);
+							//go through list and check which items match the post's voters, if any
+							$.each(voters_list, function(voter_index, voter_name){
+								//another loop to check the voters list
+								$.each(post.active_votes, function(post_v_index, post_voter){
+									//found match
+									if (post_voter.voter == voter_name){
+										//add the guy to the list of voters to be displayed
+										displayable_voters.push(voter_name);
+										//bail out
+										return false;
+									}
+								});
+							});
+							// console.log(displayable_voters);
+							//if the setting for restricting to voted posts is on, we need to make sure we have at least one matching post, otherwise do not include the post
+							var skip_unvoted_posts = '<?php echo $restrictvotedposts;?>';
+							console.log('skip_unvoted_posts:'+skip_unvoted_posts);
+							//if on and no matches, bail
+							if (skip_unvoted_posts && displayable_voters.length<1){
+								//continue to next element
+								return true;
+							}
+							
+							/* below still needs to be implemented in upcoming work */
+							//var excluded_voters_list = <?php echo json_encode(explode(",",$postexcludevoters));?>;
+							
+							//grab post's json_meta
+							var post_json_meta = JSON.parse(post.json_metadata);
+							// console.log(post_json_meta.tags);
+							
+							//create a new entry
+							var entry = document.createElement('div');
+							entry.setAttribute('class','steemit-post-entry');
+							
+							//grab and setup the details of the post
+							
+							var post_details = '';
+							
+							//primary container for content 
+							post_details += '<div class="gk_post_content_details">';
+							
+							//append title/url
+							post_details += '<h3><a href="https://www.steemit.com'+post.url+'">'+post.title+'</a></h3>';
+							
+							<?php
+								/* only display following info if in full mode (non-widget) */
+								if (!$iswidget){
+							?>
+							
+							//If images exist, use the first one
+							if ($.isArray(post_json_meta.image) && post_json_meta.image.length>0){
+								post_details += '<span class="steemit-post-img-container">';
+								post_details += '<img class="steemit-post-img" src="'+post_json_meta.image[0]+'"></span>';
+							}
+							
+							//add description
+							post_details += '<span class="steemit-post-desc">';
+							//convert the HTML/markup text into pure text, and cut off text at 200 chars
+							post_details += $('<p>'+post.body+'</p>').text().substr(0,200);
+							post_details += '</span>';	
+
+							<?php
+								}
+							?>							
+
+							//add details about the author
+							post_details += '<h4><a class="gk_steemit_author_name" href="https://www.steemit.com/@'+post.author+'">@'+post.author+'</a></h4>';
+							
+							<?php
+								/* only display following info if in full mode (non-widget) */
+								if (!$iswidget){
+							?>							
+							//add tags
+							$.each(post_json_meta.tags,function(tag_idx,tag_name){
+								post_details += '<span class="steemit-post-tags"><a href="https://www.steemit.com/trending/'+tag_name+'">'+tag_name+'</a> </span>';
+							});
+							
+							<?php
+								}
+							?>							
+							
+							//add container div for proper formatting
+							post_details += '<div class="gk_steemit_add_info">';
+							
+							//append vote count onto it
+							// console.log(post.active_votes.length);
+							post_details += '&nbsp; '+post.active_votes.length+' <i class="fa fa-thumbs-up" aria-hidden="true"></i>';
+							
+							//grab payout value as default, if the post has been paid
+							var money_val = post.total_payout_value;
+							
+							//check if author rewards have been paid or not, if not we need to grab the pending amount alternatively
+							var author_paid = (post.author_rewards>0?true:false);
+							if (!author_paid){
+								//if not, grab pending payout value
+								money_val = post.pending_payout_value;
+							}
+							money_val = money_val.replace('SBD','$');
+							money_val = money_val.replace('STEEM','$');
+							
+							//append money value onto it
+							post_details += '&nbsp; '+money_val+'';
+							
+							//close gk_steemit_add_info
+							post_details += '</div>';
+							
+							//close gk_post_content_details
+							post_details += '</div>';
+							
+							<?php 
+								/* modify placement of voters list in widget mode */
+								if (!$iswidget){
+							?>
+							//append voters names that should be displayed
+							post_details += '<div class="steemit-post-voters"><i>Chosen Post Voters:</i><br/>';
+							<?php 
+								}else{
+							?>
+							//append voters names that should be displayed - widget mode
+							post_details += '<div class="steemit-post-voters-widget"><i>Chosen Post Voters:</i><br/>';
+							<?php 
+								}
+							?>
+							$.each(displayable_voters, function(voter_index, d_voter){
+								post_details += '<a class="gk_steemit_author_name" href="https://www.steemit.com/@'+d_voter+'">@'+d_voter+'</a><br/>';
+								//limit display up to 3 chosen voters
+								if (voter_index==2){
+									post_details += '+'+(displayable_voters.length-3)+' more...';
+									//bail out
+									return false;
+								}
+							});
+							
+							post_details += '</div>';
+							
+							entry.innerHTML = post_details;
+							//append it to the existing list
+							container.appendChild(entry);
+							
+							//add some cool hovering effect
+							$(entry).hover(function(){
+								//highlight on hover in
+								//$(this).effect('highlight',{color:'#49e8e5'},1000);
+								$(this).effect('highlight',{color:'gold'},500);
+							},function(){
+								//do nothing on hover out
+							});
+						});
 					}
 				});
 			});
