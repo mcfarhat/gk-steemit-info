@@ -64,6 +64,15 @@
 .steemit-post-voters, .steemit-post-voters-widget{
 	display: inline-block;
 }
+.gk-filter-input{
+	width: 100%;
+	clear: both;
+}
+
+.gk-lbl{
+	display: block;
+}
+
 /* widget specific settings (for minimal display) where we hide image, description, and tags */
 .steemit-post-img-container-widget, .steemit-post-desc-widget, .steemit-post-tags-widget{
 	display: none;

@@ -3,7 +3,7 @@
   Plugin Name: GK Steemit Info
   Plugin URI: http://www.greateck.com/
   Description: A wordpress plugin that allows adding steem(it) (www.steemit.com) data to wordpress sites via widget or alternatively a shortcode
-  Version: 0.7.0
+  Version: 0.8.0
   Author: mcfarhat
   Author URI: http://www.greateck.com
   License: GPLv2
@@ -1384,8 +1384,8 @@ class steemit_tag_voted_posts_widget extends WP_Widget {
 		<input type="text" class="text" id="<?php echo $this->get_field_id( 'steemit_post_voters_tag' ); ?>" name="<?php echo $this->get_field_name( 'steemit_post_voters_tag' ); ?>" value="<?php echo esc_attr( $steemit_post_voters_tag ); ?>"></p>
 		<p><label for="<?php echo $this->get_field_id( 'steemit_restrict_voted_posts' ); ?>">Only Include Voted Posts:</label>
 		<input type="checkbox" id="<?php echo $this->get_field_id( 'steemit_restrict_voted_posts' ); ?>" name="<?php echo $this->get_field_name( 'steemit_restrict_voted_posts' ); ?>" <?php if ($steemit_restrict_voted_posts){ echo "checked";}?>></p>
-		<?php /*<p><label for="<?php echo $this->get_field_id( 'steemit_post_excluded_voters_tag' ); ?>">Exclude Voters:</label>
-		<input type="text" class="text" id="<?php echo $this->get_field_id( 'steemit_post_excluded_voters_tag' ); ?>" name="<?php echo $this->get_field_name( 'steemit_post_excluded_voters_tag' ); ?>" value="<?php echo esc_attr( $steemit_post_excluded_voters_tag ); ?>"></p>*/?>
+		<p><label for="<?php echo $this->get_field_id( 'steemit_post_excluded_voters_tag' ); ?>">Exclude Voters:</label>
+		<input type="text" class="text" id="<?php echo $this->get_field_id( 'steemit_post_excluded_voters_tag' ); ?>" name="<?php echo $this->get_field_name( 'steemit_post_excluded_voters_tag' ); ?>" value="<?php echo esc_attr( $steemit_post_excluded_voters_tag ); ?>"></p>
 		<p><label for="<?php echo $this->get_field_id( 'steemit_allow_frontend_filter' ); ?>">Allow Front End Filtering:</label>
 		<input type="checkbox" id="<?php echo $this->get_field_id( 'steemit_allow_frontend_filter' ); ?>" name="<?php echo $this->get_field_name( 'steemit_allow_frontend_filter' ); ?>" <?php if ($steemit_allow_frontend_filter){ echo "checked";}?>></p>
 		<?php
@@ -1454,7 +1454,7 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 		<!-- including steemjs library for performing steem related calls -->
 		<script src="https://cdn.steemjs.com/lib/latest/steem.min.js"></script>
 		<!-- including jQuery -->
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>	
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <?php
 		$libraries_appended = true;
 	}
@@ -1464,8 +1464,22 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 		//if front end filtering is enabled, display filtering criteria
 		
 		if ($allowfrontendfilter){
-			//TODO: Preparation for upcoming functionality, to be implemented
-			//echo '>Filter on';
+			//allow the display and adjustment of the different filtering functionality
+			?>
+			<div class="gk-filter-container">
+				<label for="post_count" class="gk-lbl">Max Post Count</label>
+				<input type="numeric" id="post_count" name="post_count" class="gk-filter-input">
+				<label for="filter_tag" class="gk-lbl">Filter by Tag</label>
+				<input type="text" id="filter_tag" name="filter_tag" class="gk-filter-input">
+				<label for="voters" class="gk-lbl">Voters</label>
+				<input type="text" id="voters" name="voters" class="gk-filter-input">
+				<input type="checkbox" id="restrict_voted_posts" name="restrict_voted_posts" class="gk-filter-input-chkbx">
+				<label for="restrict_voted_posts" class="gk-lbl-chkbx">Only Include Voted Posts</label>
+				<label for="excluded_voters" class="gk-lbl">Excluded Voters</label>
+				<input type="text" id="excluded_voters" name="excluded_voters" class="gk-filter-input">
+				<input type="button" id="filter_posts" name="filter_posts" value="Filter">
+			</div>
+			<?php
 		}
 ?>
 		<div id="tag_voted_posts_container<?php echo $contentid;?>">
@@ -1480,6 +1494,65 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 				//fix for migration to api.steemit.com
 				steem.api.setOptions({ url: 'https://api.steemit.com' });
 
+				<?php
+				//append JS function related to filtering if filtering is enabled
+				
+				if ($allowfrontendfilter){
+				
+				?>
+					$('#filter_posts').click(function(){
+						
+						//populate different values from front end
+						var post_limit = $('#post_count').val();
+				
+						//tag used for filtering content
+						var filter_tag = $('#filter_tag').val();
+						
+						//convert list of voters to array
+						var voters_list = $('#voters').val().split(',');
+				
+						//skip unvoted posts flag
+						var skip_unvoted_posts = $('#restrict_voted_posts').is(':checked');
+						
+						//grabbing list of any voters the related posts of which need to be excluded
+						var excluded_voters_list = $('#excluded_voters').val().split(',');
+						
+						//create query components
+						var query = {
+							tag: filter_tag,
+							limit: post_limit,
+						};
+						
+						//remove loader / empty container data
+						container.innerHTML="";
+						
+						steem_post_grabber<?php echo $contentid;?>(query, 0, post_limit, filter_tag, voters_list, skip_unvoted_posts, excluded_voters_list, true);
+					});
+				<?php
+				
+				}
+				
+				?>
+				
+				/* grab passed vals to be used in JS */
+					
+				//the max/target number of posts to be displayed
+				var post_limit = <?php echo $postcount;?>;
+				
+				//tag used for filtering content
+				var filter_tag = '<?php echo $posttag; ?>';
+				
+				//convert list of voters to array
+				var voters_list = <?php echo json_encode(explode(",",$postvoters));?>;				
+				
+				//skip unvoted posts flag
+				var skip_unvoted_posts = '<?php echo $restrictvotedposts;?>';
+				//console.log('skip_unvoted_posts:'+skip_unvoted_posts);
+				
+				//grabbing list of any voters the related posts of which need to be excluded
+				var excluded_voters_list = <?php echo json_encode(explode(",",$postexcludevoters));?>;
+
+				
 				//setup query to grab proper posts with limit and/or tag
 				var query = {
 					<?php 
@@ -1487,186 +1560,265 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 					if ($posttag!=''){?>
 					tag: '<?php echo $posttag;?>',
 					<?php } ?>
-					limit: <?php echo $postcount;?>,
+					limit: '<?php echo $postcount; ?>',
 				};
 				
+				//the target container for hosting our result set
 				var container = document.getElementById('tag_voted_posts_container<?php echo $contentid;?>');
-				//call getDiscussionsByCreated to grab steemit latest posts by tag
-				steem.api.getDiscussionsByCreated(query, function (err, posts) {
-					console.log(err, posts);
-					if (!err) {
+
+				//remove loader / empty container data
+				container.innerHTML="";
+				
+				//handles storing the current count of posts that have been included for front end display
+				var included_post_count = 0;
+			
+				//call fetcher function with false subsequent param
+				steem_post_grabber<?php echo $contentid;?>(query, included_post_count, post_limit, filter_tag, voters_list, skip_unvoted_posts, excluded_voters_list, false);
+				
+				/* function handling fetching matching steemit posts. Function name needs to be dynamic to allow multiple instances based on widgets/shortcodes included
+				 * query param contains the query to use for fetching the data
+				 * included_post_count keeps track of the number of posts so far generated/displayed
+				 * post_limit is the max count of posts to display
+				 * filter_tag is the tag to be used for filtering content
+				 * voters_list is the list of chosen voters
+				 * skip_unvoted_posts determines whether to display or not posts which did not receive a vote by above list
+				 * exluded_voters_list defines a list of voters whos posts will not be included, for example bots
+				 * subsequent identifies whether this is the first call, in which we need to keep all posts, or subsequent, whereby we need to skip the first post as it will have already been checked by the prior iteration 
+				*/
+				function steem_post_grabber<?php echo $contentid;?>(query, included_post_count, post_limit, filter_tag, voters_list, skip_unvoted_posts, excluded_voters_list, subsequent){
+
 					
-						//grab passed vals to be used in JS
-						// var included_post_count = 0;
-						var post_limit = <?php echo $postcount;?>;
-						var filter_tag = '<?php echo $posttag; ?>';
-						
-						//remove loader / empty container
-						container.innerHTML="";
-						
-						/* loop through all results */
-						$.each (posts, function (index, post){
-						//posts.map(function (post) {
-							// console.log(post);
-							var post_json_meta = JSON.parse(post.json_metadata);
-							// console.log(post_json_meta.tags);
+					//call getDiscussionsByCreated to grab steemit matching posts
+					steem.api.getDiscussionsByCreated(query, function (err, posts) {
+						console.log(err, posts);
+						if (!err) {
 							
-							/* check if any of the post's voters are part of our selection to highlight them */
-							//convert list of voters to array
-							var voters_list = <?php echo json_encode(explode(",",$postvoters));?>;
-							//contains the list of matching voters that we should display
-							var displayable_voters = [];
-							// console.log(voters_list);
-							//go through list and check which items match the post's voters, if any
-							$.each(voters_list, function(voter_index, voter_name){
-								//another loop to check the voters list
-								$.each(post.active_votes, function(post_v_index, post_voter){
-									//found match
-									if (post_voter.voter == voter_name){
-										//add the guy to the list of voters to be displayed
-										displayable_voters.push(voter_name);
+							/* loop through all results */
+							$.each (posts, function (index, post){
+								
+								//if this is a subsequent call, we need to skip first post
+								if (subsequent && index==0){
+									console.log('skip post:'+post.title);
+									//continue to next element
+									return true;
+								}
+							
+								//if this is the last post, save it for future iterations if needed. We do this at the beginning to avoid break outs
+								if (index == posts.length - 1){
+									console.log('found');
+									//update query element to include the most recent post for a starting point of the next iteration
+									query["start_permlink"] = post.permlink;
+									query["start_author"] = post.author;									
+								}
+							
+							//posts.map(function (post) {
+								// console.log(post);
+								var post_json_meta = JSON.parse(post.json_metadata);
+								// console.log(post_json_meta.tags);
+								
+								/* check if any of the post's voters are part of our selection to highlight them */
+								//contains the list of matching voters that we should display
+								var displayable_voters = [];
+								// console.log(voters_list);
+								//go through list and check which items match the post's voters, if any
+								$.each(voters_list, function(voter_index, voter_name){
+									//another loop to check the voters list
+									$.each(post.active_votes, function(post_v_index, post_voter){
+										//found match
+										if (post_voter.voter == voter_name){
+											//add the guy to the list of voters to be displayed
+											displayable_voters.push(voter_name);
+											//bail out
+											return false;
+										}
+									});
+								});
+								
+								// console.log(displayable_voters);
+								//if the setting for restricting to voted posts is on, we need to make sure we have at least one matching post, otherwise do not include the post
+								//if on and no matches, bail
+								if (skip_unvoted_posts && displayable_voters.length<1){
+									//continue to next element
+									return true;
+								}
+								
+								//var that captures whether the condition to exclude this post has been met
+								var exclude_post = false;
+								
+								//go through list and check which items match the post's voters, if any
+								$.each(excluded_voters_list, function(voter_index, voter_name){
+									//another loop to check the voters list
+									$.each(post.active_votes, function(post_v_index, post_voter){
+										//found match
+										if (post_voter.voter == voter_name){
+											//we have found one match for the one to be excluded, set proper status and bail out
+											exclude_post = true;
+											return false;//inner loop
+										}
+									});
+									//bail out of external loop as well as we no longer need to check if the post already needs to be excluded
+									if (exclude_post){
+										return false;//outer loop
+									}
+								});
+
+								//check if we met the exclusion condition to skip to the next post
+								if (exclude_post){
+									return true;//post loop
+								}
+								
+								
+								//grab post's json_meta
+								var post_json_meta = JSON.parse(post.json_metadata);
+								// console.log(post_json_meta.tags);
+								
+								//create a new entry
+								var entry = document.createElement('div');
+								entry.setAttribute('class','steemit-post-entry');
+								
+								//grab and setup the details of the post
+								
+								var post_details = '';
+								
+								//primary container div for post content 
+								post_details += '<div class="gk_post_content_details">';
+								
+								//append title/url
+								post_details += '<h3><a href="https://www.steemit.com'+post.url+'">'+post.title+'</a></h3>';
+								
+								<?php
+									/* only display following info if in full mode (non-widget) */
+									if (!$iswidget){
+								?>
+								
+								//If images exist, use the first one
+								if ($.isArray(post_json_meta.image) && post_json_meta.image.length>0){
+									post_details += '<span class="steemit-post-img-container">';
+									post_details += '<img class="steemit-post-img" src="'+post_json_meta.image[0]+'"></span>';
+								}
+								
+								//add description
+								post_details += '<span class="steemit-post-desc">';
+								//convert the HTML/markup text into pure text, and cut off text at 200 chars
+								post_details += $('<p>'+post.body+'</p>').text().substr(0,200);
+								post_details += '</span>';	
+
+								<?php
+									}
+								?>							
+
+								//add details about the author
+								post_details += '<h4><a class="gk_steemit_author_name" href="https://www.steemit.com/@'+post.author+'">@'+post.author+'</a></h4>';
+								
+								<?php
+									/* only display following info if in full mode (non-widget) */
+									if (!$iswidget){
+								?>							
+								//add tags
+								$.each(post_json_meta.tags,function(tag_idx,tag_name){
+									post_details += '<span class="steemit-post-tags"><a href="https://www.steemit.com/trending/'+tag_name+'">'+tag_name+'</a> </span>';
+								});
+								
+								<?php
+									}
+								?>							
+								
+								//add container div for proper formatting
+								post_details += '<div class="gk_steemit_add_info">';
+								
+								//append post date
+								var pst_date = new Date(post.created);
+								post_details += pst_date.toLocaleDateString()+ ' ' +pst_date.toLocaleTimeString();
+								
+								//append vote count onto it
+								// console.log(post.active_votes.length);
+								post_details += '<br/>'+post.active_votes.length+' <i class="fa fa-thumbs-up" aria-hidden="true"></i>';
+								
+								//grab payout value as default, if the post has been paid
+								var money_val = post.total_payout_value;
+								
+								//check if author rewards have been paid or not, if not we need to grab the pending amount alternatively
+								var author_paid = (post.author_rewards>0?true:false);
+								if (!author_paid){
+									//if not, grab pending payout value
+									money_val = post.pending_payout_value;
+								}
+								money_val = money_val.replace('SBD','$');
+								money_val = money_val.replace('STEEM','$');
+								
+								//append money value onto it
+								post_details += '&nbsp; '+money_val+'';
+								
+								//close gk_steemit_add_info
+								post_details += '</div>';
+								
+								//close gk_post_content_details
+								post_details += '</div>';
+								
+								<?php 
+									/* modify placement of voters list in widget mode */
+									if (!$iswidget){
+								?>
+								//append voters names that should be displayed
+								post_details += '<div class="steemit-post-voters"><i>Chosen Post Voters:</i><br/>';
+								<?php 
+									}else{
+								?>
+								//append voters names that should be displayed - widget mode
+								post_details += '<div class="steemit-post-voters-widget"><i>Chosen Post Voters:</i><br/>';
+								<?php 
+									}
+								?>
+								$.each(displayable_voters, function(voter_index, d_voter){
+									post_details += '<a class="gk_steemit_author_name" href="https://www.steemit.com/@'+d_voter+'">@'+d_voter+'</a><br/>';
+									//limit display up to 3 chosen voters
+									if (voter_index==2){
+										post_details += '+'+(displayable_voters.length-3)+' more...';
 										//bail out
 										return false;
 									}
 								});
-							});
-							// console.log(displayable_voters);
-							//if the setting for restricting to voted posts is on, we need to make sure we have at least one matching post, otherwise do not include the post
-							var skip_unvoted_posts = '<?php echo $restrictvotedposts;?>';
-							console.log('skip_unvoted_posts:'+skip_unvoted_posts);
-							//if on and no matches, bail
-							if (skip_unvoted_posts && displayable_voters.length<1){
-								//continue to next element
-								return true;
-							}
-							
-							/* below still needs to be implemented in upcoming work */
-							//var excluded_voters_list = <?php echo json_encode(explode(",",$postexcludevoters));?>;
-							
-							//grab post's json_meta
-							var post_json_meta = JSON.parse(post.json_metadata);
-							// console.log(post_json_meta.tags);
-							
-							//create a new entry
-							var entry = document.createElement('div');
-							entry.setAttribute('class','steemit-post-entry');
-							
-							//grab and setup the details of the post
-							
-							var post_details = '';
-							
-							//primary container for content 
-							post_details += '<div class="gk_post_content_details">';
-							
-							//append title/url
-							post_details += '<h3><a href="https://www.steemit.com'+post.url+'">'+post.title+'</a></h3>';
-							
-							<?php
-								/* only display following info if in full mode (non-widget) */
-								if (!$iswidget){
-							?>
-							
-							//If images exist, use the first one
-							if ($.isArray(post_json_meta.image) && post_json_meta.image.length>0){
-								post_details += '<span class="steemit-post-img-container">';
-								post_details += '<img class="steemit-post-img" src="'+post_json_meta.image[0]+'"></span>';
-							}
-							
-							//add description
-							post_details += '<span class="steemit-post-desc">';
-							//convert the HTML/markup text into pure text, and cut off text at 200 chars
-							post_details += $('<p>'+post.body+'</p>').text().substr(0,200);
-							post_details += '</span>';	
-
-							<?php
-								}
-							?>							
-
-							//add details about the author
-							post_details += '<h4><a class="gk_steemit_author_name" href="https://www.steemit.com/@'+post.author+'">@'+post.author+'</a></h4>';
-							
-							<?php
-								/* only display following info if in full mode (non-widget) */
-								if (!$iswidget){
-							?>							
-							//add tags
-							$.each(post_json_meta.tags,function(tag_idx,tag_name){
-								post_details += '<span class="steemit-post-tags"><a href="https://www.steemit.com/trending/'+tag_name+'">'+tag_name+'</a> </span>';
-							});
-							
-							<?php
-								}
-							?>							
-							
-							//add container div for proper formatting
-							post_details += '<div class="gk_steemit_add_info">';
-							
-							//append vote count onto it
-							// console.log(post.active_votes.length);
-							post_details += '&nbsp; '+post.active_votes.length+' <i class="fa fa-thumbs-up" aria-hidden="true"></i>';
-							
-							//grab payout value as default, if the post has been paid
-							var money_val = post.total_payout_value;
-							
-							//check if author rewards have been paid or not, if not we need to grab the pending amount alternatively
-							var author_paid = (post.author_rewards>0?true:false);
-							if (!author_paid){
-								//if not, grab pending payout value
-								money_val = post.pending_payout_value;
-							}
-							money_val = money_val.replace('SBD','$');
-							money_val = money_val.replace('STEEM','$');
-							
-							//append money value onto it
-							post_details += '&nbsp; '+money_val+'';
-							
-							//close gk_steemit_add_info
-							post_details += '</div>';
-							
-							//close gk_post_content_details
-							post_details += '</div>';
-							
-							<?php 
-								/* modify placement of voters list in widget mode */
-								if (!$iswidget){
-							?>
-							//append voters names that should be displayed
-							post_details += '<div class="steemit-post-voters"><i>Chosen Post Voters:</i><br/>';
-							<?php 
-								}else{
-							?>
-							//append voters names that should be displayed - widget mode
-							post_details += '<div class="steemit-post-voters-widget"><i>Chosen Post Voters:</i><br/>';
-							<?php 
-								}
-							?>
-							$.each(displayable_voters, function(voter_index, d_voter){
-								post_details += '<a class="gk_steemit_author_name" href="https://www.steemit.com/@'+d_voter+'">@'+d_voter+'</a><br/>';
-								//limit display up to 3 chosen voters
-								if (voter_index==2){
-									post_details += '+'+(displayable_voters.length-3)+' more...';
-									//bail out
+								
+								post_details += '</div>';
+								
+								entry.innerHTML = post_details;
+								//append it to the existing list
+								container.appendChild(entry);
+								
+								//increase count of included posts
+								included_post_count ++;
+								if (included_post_count>=post_limit){
+									//break out
 									return false;
 								}
-							});
+								
+								//add some cool hovering effect
+								$(entry).hover(function(){
+									//highlight on hover in
+									//$(this).effect('highlight',{color:'#49e8e5'},1000);
+									$(this).effect('highlight',{color:'gold'},500);
+								},function(){
+									//do nothing on hover out
+								});
+								// console.log("index:"+index+"-length:"+posts.length);
+								
+							});//$.each posts loop
 							
-							post_details += '</div>';
+							// console.log("included_post_count:"+included_post_count+' >> post_limit:'+post_limit);
 							
-							entry.innerHTML = post_details;
-							//append it to the existing list
-							container.appendChild(entry);
-							
-							//add some cool hovering effect
-							$(entry).hover(function(){
-								//highlight on hover in
-								//$(this).effect('highlight',{color:'#49e8e5'},1000);
-								$(this).effect('highlight',{color:'gold'},500);
-							},function(){
-								//do nothing on hover out
-							});
-						});
-					}
-				});
+							//if we still have room to add posts, and our last attempt to grab posts worked, let's try again
+							if (posts.length >0 && included_post_count < post_limit){
+								// console.log('call again');
+								// console.log(query);
+								
+								//call again with subsequent enabled to avoid duplicate posts
+								steem_post_grabber<?php echo $contentid;?>(query, included_post_count, post_limit, filter_tag, voters_list, skip_unvoted_posts, excluded_voters_list, true);
+							}else{
+								console.log('completed fetching max posts');
+							}
+						}
+					});//end getDiscussionsByCreated
+				}//end steem_post_grabber function
 			});
 	</script>
 <?php
