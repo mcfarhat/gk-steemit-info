@@ -11,7 +11,7 @@
 
 # Short Summary
 
-The plugin serves to be an innovative approach towards connecting steemit to wordpress. At its current phase, it allows adding one or more widgets/shortcodes that display steemit related info including some steem stats, user info, user posts, user upvotes (likes), trending posts along with a bulk of filtering options, but also allows instantaneous creation of steemit users via Steem Power delegation
+The plugin serves to be an innovative approach towards connecting steemit to wordpress. At its current phase, it allows adding one or more widgets/shortcodes that display steemit related info including steem stats, user info, user posts, user upvotes (likes), trending posts, or even newly created posts, along with a bulk of filtering options, but also allows instantaneous creation of steemit users via Steem Power delegation
 
 # Plugin Details
 
@@ -19,7 +19,7 @@ Steemit.com is a fast growing social network/blogging platform built on the stee
 
 We believe that providing proper means to integrate information from steemit into wordpress will lead the way for further growth to the platform, particularly via widgets/shortcodes as they are easiest to embed for any wordpress site owner, without needed development skills.
 
-Using GK Steemit Info, you now have the capability to create widgets or embed shortcodes to your wordpress solution but also to create new users on steemit, provided you are willing to delegate steem power to them
+Using GK Steemit Info, you now have the capability to create widgets or embed shortcodes to your wordpress solution but also to create new users on steemit, provided you are willing to delegate steem power to them.
 
 ## Widgets/Shortcodes
 
@@ -118,8 +118,30 @@ Check out screenshots 16, 17, and 18 below for a highlight of the widget, its co
 In terms of shortcode support, the following shortcode can be used for such display: [steemit_user_voted_posts username=USERNAME limit=LIMIT]
 whereby:
 - username (Required) is the target steemit username whose voted posts are to be displayed.
-- limit (Optional) is the top limit of the number of posts to be shown
+- limit (Optional) is the top limit of the number of posts to be shown. Default value is 10.
 
+### Steemit Tag Filtered Voted Posts
+
+The purpose of this widget is to allow the display of specific posts belonging to specific category, and that fulfill a certain criteria. The need behind this widget came through the concept of post curation, a practice that is common on steemit (and underlying projects...) whereby voters are looking to find quality posts, and upvote them. As this is normally accomplished via several criteria, we wanted to make sure this criteria is available for the curators to be able to easily view and filter in/out the quality posts they are looking for.
+In addition to the ability to set a proper title, the widget allows for filtering based upon the following options:
+- Max Post Count: which effectively defines the maximum number of posts that will be returned/displayed. Maximum acceptable value is up to 100.
+- Filter by Tag: this defines the tag relevant to which posts are being rendered.
+- Voters: this accepts a set of comma-seperated names of steemit accounts/voters (without the leading @) who will be matched against specific posts. In case of a match, up to a maximum of 3 voter names will be displayed, with a "more..." for additional voters.
+- Only Include Voted Posts: this controls whether posts that have been voted "at least" by one of the above voters will be rendered, or all posts will be displayed based on the other criteria regardlress of whether being voted or not.
+- Exclude Voters: this list defines a specific comma-separated list of accounts/voters, which in case had voted to the post, the post will not appear in the result. The purpose of this is to allow avoiding bid-bot voted posts or promoted posts from being displayed in the resulting set.
+Check out screenshots 19, 20, and 21 below for a highlight of the widget, its configuration options, and the sample output of the widget.
+
+In terms of shortcode support, the following shortcode can be used for such display: [steemit_tag_voted_posts filtertag=TAG limit=LIMIT voters=VOTER1,VOTER2 restrictvotedonly=0 excludevoters=VOTER1,VOTER2 showfilters=0]
+whereby: 
+- filtertag (Optional) is the tag to be used for filtering out posts
+- limit (Optional) is the top limit of the number of posts to be shown. Default value is 10.
+- voters (Optional) comma-separated list of voters to be highlighted or used for filtering, based on the following param
+- restrictvotedonly (Optional) controls whether posts will be filtered based upon the voters list set previously. Accepts 0 (inactive) or 1(active) values. Default is 0(inactive)
+- excludevoters (Optional) comma-separated list of voters/bots whose posts are to be skipped
+- showfilters: a setting allowing the display of specific filters on the resulting page, only in shortcode mode. The filtering options available on the display will be similar to the ones available on the backend, and hence allowing similar control for the front end users. More on this below.
+
+#### Shortcode Version Filtering Options
+To allow more flexibility for front-end users/curators, we are providing with front-end filtering capability to allow them to adjust and modify, upon need, what filtering is happening on steemit posts. To see a screenshot of filtering options and related output of the widget, check out screenshot 22 link below.
 
 ## Backend Management
 
@@ -167,8 +189,24 @@ Keep in mind that after creating an account and delegating SP to it, you can eve
 16. <a href="https://www.dropbox.com/s/d4x3fomh6ezzqc9/steemit_user_voted_posts_widget.png?dl=0">Screenshot showing the Steemit User Voted Posts widget on the selection screen</a>
 17. <a href="https://www.dropbox.com/s/i9xyh5h8cr08c99/steemit_user_voted_posts_configuration.png?dl=0">Screenshot showing the configuration options of the Steemit User Voted Posts widget</a>
 18. <a href="https://www.dropbox.com/s/w1tohwteylaumsl/steemit_user_voted_posts_display.png?dl=0">Screenshot of a sample outcome of the Steemit User Voted Posts widget</a>
+19. <a href="https://www.dropbox.com/s/hpcft06lcl21b67/steemit_tag_filtered_voted_posts_widget.png?dl=0">Screenshot showing the Steemit Tag  Filtered Voted Posts widget on the selection screen</a>
+20. <a href="https://www.dropbox.com/s/1lgf4juut03oxbd/steemit_tag_filtered_voted_posts_configuration.png?dl=0">Screenshot showing the configuration options of the Steemit Tag Filtered Voted Posts widget</a>
+21. <a href="https://www.dropbox.com/s/ix5uokipyhxeibb/steemit_tag_filtered_voted_posts_widget_display.png?dl=0">Screenshot of a sample outcome of the Steemit Tag Filtered Voted Posts widget</a>
+22. <a href="https://www.dropbox.com/s/yot24e1wmoi6f2o/steemit_tag_filtered_voted_posts_shortcode_display.png?dl=0">Screenshot of a sample outcome of the Steemit Tag Filtered Voted Posts Shortcode version along with filtering enabled</a>
 
 ## Changelog
+
+### 0.8.0
+- Exluding specific voters options has been included for both widget and shortcode
+- Front End Filtering option and controllers has been implemented
+- Adding capability of loading full matching post count up to max content
+- Adding post date/time per each post
+
+### 0.7.0
+- Creation of New widget and relevant shortcode to allow display of steemit posts on any wordpress site whether in a widget or on a page/post with several filtering options
+- Display enhancements for single post view across the plugin's widgets/shortcodes
+- Refactoring stylesheet code into a separate plugin specific stylesheet file.
+- Minor bug fix for older shortcodes
 
 ### 0.6.0
 - Adding new widget/shortcode to display specific user's voted posts
