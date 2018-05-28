@@ -3,7 +3,7 @@
   Plugin Name: GK Steemit Info
   Plugin URI: http://www.greateck.com/
   Description: A wordpress plugin that allows adding steem(it) (www.steemit.com) data to wordpress sites via widget or alternatively a shortcode
-  Version: 0.8.3
+  Version: 0.8.4
   Author: mcfarhat
   Author URI: http://www.greateck.com
   License: GPLv2
@@ -36,7 +36,7 @@ function gk_steemit_info_scripts_enq(){
 	wp_enqueue_script( 'jquery-effects-highlight' );
 	
 	//adding plugin's stylesheet file for front end use
-	wp_register_style('gk_steemit_info_reg', plugins_url('style.css',__FILE__ ));
+	wp_register_style('gk_steemit_info_reg', plugins_url('style.css',__FILE__ ), array(), '?v=0.8.3.2');
     wp_enqueue_style('gk_steemit_info_reg');	
 }
 
@@ -888,24 +888,24 @@ function steemit_user_info_renderer($username, $contentid){
 			<div id="account_name<?php echo $contentid;?>"></div>
 			<img id="user_img<?php echo $contentid;?>" class="steemit_user_img">
 			<div class="steemit_user_add_details">
-			<div id="about<?php echo $contentid;?>"></div>
-			<div id="location<?php echo $contentid;?>"></div>
-			<div id="website<?php echo $contentid;?>"></div>
-			<div id="post_count<?php echo $contentid;?>"></div>
-			<div id="user_posts<?php echo $contentid;?>"></div>
-			<div id="steem_power<?php echo $contentid;?>"></div>
-			<div id="delg_steem_power<?php echo $contentid;?>"></div>
-			<div id="recv_steem_power<?php echo $contentid;?>"></div>
-			<div id="effc_steem_power<?php echo $contentid;?>"></div>
-			<div id="steem<?php echo $contentid;?>"></div>
-			<div id="sbd<?php echo $contentid;?>"></div>
-			<div id="voting_power<?php echo $contentid;?>"></div>
-			<div id="reputation<?php echo $contentid;?>"></div>
-			<div id="followers<?php echo $contentid;?>"></div>
-			<div id="following<?php echo $contentid;?>"></div>			
-			<div id="account_balance<?php echo $contentid;?>"></div>
-			<div id="realtime_balance<?php echo $contentid;?>"></div>
-		</div>
+				<div id="about<?php echo $contentid;?>"></div>
+				<div id="location<?php echo $contentid;?>"></div>
+				<div id="website<?php echo $contentid;?>"></div>
+				<div id="post_count<?php echo $contentid;?>"></div>
+				<div id="user_posts<?php echo $contentid;?>"></div>
+				<div id="steem_power<?php echo $contentid;?>"></div>
+				<div id="delg_steem_power<?php echo $contentid;?>"></div>
+				<div id="recv_steem_power<?php echo $contentid;?>"></div>
+				<div id="effc_steem_power<?php echo $contentid;?>"></div>
+				<div id="steem<?php echo $contentid;?>"></div>
+				<div id="sbd<?php echo $contentid;?>"></div>
+				<div id="voting_power<?php echo $contentid;?>"></div>
+				<div id="reputation<?php echo $contentid;?>"></div>
+				<div id="followers<?php echo $contentid;?>"></div>
+				<div id="following<?php echo $contentid;?>"></div>			
+				<div id="account_balance<?php echo $contentid;?>"></div>
+				<div id="realtime_balance<?php echo $contentid;?>"></div>
+			</div>
 		</div>
 <?php
 }
@@ -1316,9 +1316,15 @@ class steemit_tag_voted_posts_widget extends WP_Widget {
 		//grab post count params
 		$postcount = apply_filters( 'steemit_post_count_widget', $instance['steemit_post_count'] );
 		$posttag = apply_filters( 'steemit_post_tag_widget', $instance['steemit_post_tag'] );
+		$secondarytag = apply_filters( 'steemit_post_secondary_tag_widget', $instance['steemit_post_secondary_tag'] );
+		
 		$postvoters = apply_filters( 'steemit_post_voters_widget', $instance['steemit_post_voters_tag'] );
 		$restrictvotedposts = apply_filters( 'steemit_restrict_voted_posts', $instance['steemit_restrict_voted_posts'] ) ? true : false ;
 		$postexcludevoters = apply_filters( 'steemit_post_excluded_voters_tag', $instance['steemit_post_excluded_voters_tag'] );
+		
+		$minwords = apply_filters( 'steemit_post_min_words_widget', $instance['steemit_post_min_words'] );
+		$minpics = apply_filters( 'steemit_post_min_pics_widget', $instance['steemit_post_min_pics'] );
+		
 		$allowfrontendfilter = false;//apply_filters( 'steemit_allow_frontend_filter', $instance['steemit_allow_frontend_filter'] ) ? true : false ;
 		$iswidget = 1;
 		
@@ -1331,7 +1337,7 @@ class steemit_tag_voted_posts_widget extends WP_Widget {
 		$date = new DateTime();
 		$contentid = $date->getTimestamp().mt_rand(1,4000);
 		//display output in the widget
-		steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $restrictvotedposts, $postexcludevoters, $allowfrontendfilter, $contentid, $iswidget);
+		steemit_tag_voted_posts_renderer($posttag, $secondarytag, $postcount, $postvoters, $restrictvotedposts, $postexcludevoters, $allowfrontendfilter, $contentid, $iswidget, $minwords, $minpics);
 		
 		//making room for hook display by any theme
 		echo $args['after_widget'];
@@ -1349,15 +1355,22 @@ class steemit_tag_voted_posts_widget extends WP_Widget {
 		$steemit_post_tag = "";
 		$steemit_post_count = "";
 		$steemit_post_voters_tag = "";
+		$steemit_post_secondary_tag = "";
 		$steemit_restrict_voted_posts = "";
 		$steemit_post_excluded_voters_tag = "";
 		$steemit_allow_frontend_filter = "";
+		
+		$steemit_post_min_words = "";
+		$steemit_post_min_pics = "";
 
 		if ( isset( $instance[ 'steemit_post_count' ] ) ) {
 			$steemit_post_count = $instance[ 'steemit_post_count' ];
 		}
 		if ( isset( $instance[ 'steemit_post_voters_tag' ] ) ) {
 			$steemit_post_voters_tag = $instance[ 'steemit_post_voters_tag' ];
+		}
+		if ( isset( $instance[ 'steemit_post_secondary_tag' ] ) ) {
+			$steemit_post_secondary_tag = $instance[ 'steemit_post_secondary_tag' ];
 		}
 		if ( isset( $instance[ 'steemit_post_excluded_voters_tag' ] ) ) {
 			$steemit_post_excluded_voters_tag = $instance[ 'steemit_post_excluded_voters_tag' ];
@@ -1372,6 +1385,14 @@ class steemit_tag_voted_posts_widget extends WP_Widget {
 			$steemit_allow_frontend_filter = $instance[ 'steemit_allow_frontend_filter' ];
 		}
 		
+		if ( isset( $instance[ 'steemit_post_min_words' ] ) ) {
+			$steemit_post_min_words = $instance[ 'steemit_post_min_words' ];
+		}
+		if ( isset( $instance[ 'steemit_post_min_pics' ] ) ) {
+			$steemit_post_min_pics = $instance[ 'steemit_post_min_pics' ];
+		}
+		
+		
 		// Widget admin form
 		?>
 		<p>
@@ -1384,10 +1405,16 @@ class steemit_tag_voted_posts_widget extends WP_Widget {
 		<input type="text" class="text" id="<?php echo $this->get_field_id( 'steemit_post_tag' ); ?>" name="<?php echo $this->get_field_name( 'steemit_post_tag' ); ?>" value="<?php echo esc_attr( $steemit_post_tag ); ?>"></p>
 		<p><label for="<?php echo $this->get_field_id( 'steemit_post_voters_tag' ); ?>">Voters:</label>
 		<input type="text" class="text" id="<?php echo $this->get_field_id( 'steemit_post_voters_tag' ); ?>" name="<?php echo $this->get_field_name( 'steemit_post_voters_tag' ); ?>" value="<?php echo esc_attr( $steemit_post_voters_tag ); ?>"></p>
+		<p><label for="<?php echo $this->get_field_id( 'steemit_post_secondary_tag' ); ?>">Voters:</label>
+		<input type="text" class="text" id="<?php echo $this->get_field_id( 'steemit_post_secondary_tag' ); ?>" name="<?php echo $this->get_field_name( 'steemit_post_secondary_tag' ); ?>" value="<?php echo esc_attr( $steemit_post_secondary_tag ); ?>"></p>		
 		<p><label for="<?php echo $this->get_field_id( 'steemit_restrict_voted_posts' ); ?>">Only Include Voted Posts:</label>
 		<input type="checkbox" id="<?php echo $this->get_field_id( 'steemit_restrict_voted_posts' ); ?>" name="<?php echo $this->get_field_name( 'steemit_restrict_voted_posts' ); ?>" <?php if ($steemit_restrict_voted_posts){ echo "checked";}?>></p>
 		<p><label for="<?php echo $this->get_field_id( 'steemit_post_excluded_voters_tag' ); ?>">Exclude Voters:</label>
 		<input type="text" class="text" id="<?php echo $this->get_field_id( 'steemit_post_excluded_voters_tag' ); ?>" name="<?php echo $this->get_field_name( 'steemit_post_excluded_voters_tag' ); ?>" value="<?php echo esc_attr( $steemit_post_excluded_voters_tag ); ?>"></p>
+		<p><label for="<?php echo $this->get_field_id( 'steemit_post_min_words' ); ?>">Min Word Count:</label>
+		<input type="number" class="text" id="<?php echo $this->get_field_id( 'steemit_post_min_words' ); ?>" name="<?php echo $this->get_field_name( 'steemit_post_min_words' ); ?>" step="1" min="0" max="10" value="<?php echo esc_attr( $steemit_post_min_words ); ?>"></p>
+		<p><label for="<?php echo $this->get_field_id( 'steemit_post_min_pics' ); ?>">Min Picture Count:</label>
+		<input type="number" class="text" id="<?php echo $this->get_field_id( 'steemit_post_min_pics' ); ?>" name="<?php echo $this->get_field_name( 'steemit_post_min_pics' ); ?>" step="1" min="0" max="10" value="<?php echo esc_attr( $steemit_post_min_pics ); ?>"></p>
 		<?php //removing as this will only be available for shortcodes 
 		/*<p><label for="<?php echo $this->get_field_id( 'steemit_allow_frontend_filter' ); ?>">Allow Front End Filtering:</label>
 		<input type="checkbox" id="<?php echo $this->get_field_id( 'steemit_allow_frontend_filter' ); ?>" name="<?php echo $this->get_field_name( 'steemit_allow_frontend_filter' ); ?>" <?php if ($steemit_allow_frontend_filter){ echo "checked";}?>></p>*/?>
@@ -1400,8 +1427,12 @@ class steemit_tag_voted_posts_widget extends WP_Widget {
 		$instance['steemit_post_tag'] = ( ! empty( $new_instance['steemit_post_tag'] ) ) ? $new_instance['steemit_post_tag'] : '';
 		$instance['steemit_post_count'] = ( ! empty( $new_instance['steemit_post_count'] ) ) ? $new_instance['steemit_post_count'] : '';
 		$instance['steemit_post_voters_tag'] = ( ! empty( $new_instance['steemit_post_voters_tag'] ) ) ? $new_instance['steemit_post_voters_tag'] : '';
+		$instance['steemit_post_secondary_tag'] = ( ! empty( $new_instance['steemit_post_secondary_tag'] ) ) ? $new_instance['steemit_post_secondary_tag'] : '';
 		$instance['steemit_restrict_voted_posts'] = $new_instance['steemit_restrict_voted_posts'];
 		$instance['steemit_post_excluded_voters_tag'] = ( ! empty( $new_instance['steemit_post_excluded_voters_tag'] ) ) ? $new_instance['steemit_post_excluded_voters_tag'] : '';
+		
+		$instance['steemit_post_min_words'] = ( ! empty( $new_instance['steemit_post_min_words'] ) ) ? $new_instance['steemit_post_min_words'] : '';
+		$instance['steemit_post_min_pics'] = ( ! empty( $new_instance['steemit_post_min_pics'] ) ) ? $new_instance['steemit_post_min_pics'] : '';
 		//$instance['steemit_allow_frontend_filter'] = ( ! empty( $new_instance['steemit_allow_frontend_filter'] ) ) ? true : false;
 		return $instance;
 	}
@@ -1414,7 +1445,7 @@ function gk_load_steemit_tag_voted_posts_widget() {
 add_action( 'widgets_init', 'gk_load_steemit_tag_voted_posts_widget' ); 
  
 /* shortcode to display steemit user count on front end. 
-Use it in format [steemit_tag_voted_posts filtertag=TAG limit=LIMIT voters=VOTER1,VOTER2 restrictvotedonly=0 excludevoters=VOTER1,VOTER2 showfilters=0] */
+Use it in format [steemit_tag_voted_posts filtertag=TAG secondarytag=TAG2 limit=LIMIT voters=VOTER1,VOTER2 restrictvotedonly=0 excludevoters=VOTER1,VOTER2 showfilters=0 minwords=0 minpics=0] */
 add_shortcode('steemit_tag_voted_posts', 'display_steemit_tag_voted_posts' );
 
 function display_steemit_tag_voted_posts( $inner_atts, $content = "" ) {
@@ -1424,11 +1455,16 @@ function display_steemit_tag_voted_posts( $inner_atts, $content = "" ) {
 	
 	//grab the different sent params, making sure to provide default values for params that can be skipped
 	$posttag = isset($inner_atts['filtertag']) ? $inner_atts['filtertag'] : '';
+	$secondarytag = isset($inner_atts['secondarytag']) ? $inner_atts['secondarytag'] : '';
 	$postcount = isset($inner_atts['limit']) ? $inner_atts['limit'] : '10';
 	$postvoters = isset($inner_atts['voters']) ? $inner_atts['voters'] : '';
 	$restrictvotedposts = isset($inner_atts['restrictvotedonly']) ? $inner_atts['restrictvotedonly'] : false;
 	$postexcludevoters = isset($inner_atts['excludevoters']) ? $inner_atts['excludevoters'] : '';
 	$allowfrontendfilter = isset($inner_atts['showfilters']) ? $inner_atts['showfilters'] : false;
+	
+	$minwords = isset($inner_atts['minwords']) ? $inner_atts['minwords'] : '0';
+	$minpics = isset($inner_atts['minpics']) ? $inner_atts['minpics'] : '0';
+	
 	$iswidget = 0;
 	
 	if (empty($posttag)){
@@ -1438,16 +1474,26 @@ function display_steemit_tag_voted_posts( $inner_atts, $content = "" ) {
 	//widget container unique identifier based on timestamp
 	$date = new DateTime();
 	$contentid = $date->getTimestamp().mt_rand(1,4000);
-	steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $restrictvotedposts, $postexcludevoters, $allowfrontendfilter, $contentid, $iswidget);
+	steemit_tag_voted_posts_renderer($posttag, $secondarytag, $postcount, $postvoters, $restrictvotedposts, $postexcludevoters, $allowfrontendfilter, $contentid, $iswidget, $minwords, $minpics);
 }
 
 /* function handling the display of the selected users' posts */
-function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $restrictvotedposts, $postexcludevoters, $allowfrontendfilter, $contentid, $iswidget){
+function steemit_tag_voted_posts_renderer($posttag, $secondarytag, $postcount, $postvoters, $restrictvotedposts, $postexcludevoters, $allowfrontendfilter, $contentid, $iswidget, $minwords, $minpics){
 
 	//if postcount not properly provided and within 1 - 100, default to 10
 	if (!is_numeric ($postcount) || (is_numeric($postcount) && ($postcount<1 || $postcount>100))){
 		$postcount = 10;
 	}
+	
+	//validate the params for minwords and minpics
+	//if not properly provided and within 0 - 10, default to 0
+	if (!is_numeric ($minwords) || (is_numeric($minwords) && ($minwords<0 || $minwords>10))){
+		$minwords = 0;
+	}
+	if (!is_numeric ($minpics) || (is_numeric($minpics) && ($minpics<0 || $minpics>10))){
+		$minpics = 0;
+	}
+	
 	//avoiding pointless re-inclusion of libraries if already included
 	global $libraries_appended;
 	if (!$libraries_appended){
@@ -1474,12 +1520,18 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 				<input type="numeric" id="post_count" name="post_count" class="gk-filter-input" value="<?php echo $postcount;?>">
 				<label for="filter_tag" class="gk-lbl">Filter by Tag</label>
 				<input type="text" id="filter_tag" name="filter_tag" class="gk-filter-input" value="<?php echo $posttag;?>">
+				<label for="secondary_tag" class="gk-lbl">Secondary Tag</label>
+				<input type="text" id="secondary_tag" name="secondary_tag" class="gk-filter-input" value="<?php echo $secondarytag;?>">				
 				<label for="voters" class="gk-lbl">Voters</label>
 				<input type="text" id="voters" name="voters" class="gk-filter-input" value="<?php echo $postvoters;?>">
 				<input type="checkbox" id="restrict_voted_posts" name="restrict_voted_posts" class="gk-filter-input-chkbx" <?php if ($restrictvotedposts){ echo "checked";}?>>
 				<label for="restrict_voted_posts" class="gk-lbl-chkbx">Only Include Voted Posts</label>
 				<label for="excluded_voters" class="gk-lbl">Excluded Voters</label>
 				<input type="text" id="excluded_voters" name="excluded_voters" class="gk-filter-input" value="<?php echo $postexcludevoters;?>">
+				<label for="min_words" class="gk-lbl">Min Word Count</label>
+				<input type="numeric" id="min_words" name="min_words" class="gk-filter-input" value="<?php echo $minwords;?>">
+				<label for="min_pics" class="gk-lbl">Min Picture Count</label>
+				<input type="numeric" id="min_pics" name="min_pics" class="gk-filter-input" value="<?php echo $minpics;?>">				
 				<input type="button" id="filter_posts" name="filter_posts" value="Filter">
 			</div>
 			<?php
@@ -1496,7 +1548,7 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 			jQuery(document).ready(function($){
 				//fix for migration to api.steemit.com
 				steem.api.setOptions({ url: 'https://api.steemit.com' });
-
+				
 				
 				//the target container for hosting our result set
 				var container = document.getElementById('tag_voted_posts_container<?php echo $contentid;?>');
@@ -1521,6 +1573,9 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 						//tag used for filtering content
 						var filter_tag = $('#filter_tag').val();
 						
+						//additional tag used for further filtering
+						var secondary_tag = $('#secondary_tag').val();
+						
 						//convert list of voters to array
 						var voters_list = $('#voters').val().split(',');
 				
@@ -1529,6 +1584,10 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 						
 						//grabbing list of any voters the related posts of which need to be excluded
 						var excluded_voters_list = $('#excluded_voters').val().split(',');
+						
+						//grabbing min vals for pic and word count from front end
+						var min_words = $('#min_words').val();
+						var min_pics = $('#min_pics').val();
 						
 						//create query components
 						var query = {
@@ -1539,7 +1598,7 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 						//remove loader / empty container data
 						container.innerHTML='<img class="gk-loader-img" src="<?php echo plugins_url();?>/gk-steemit-info/img/ajax-loader.gif">';
 						
-						steem_post_grabber<?php echo $contentid;?>(query, 0, post_limit, filter_tag, voters_list, skip_unvoted_posts, excluded_voters_list, true);
+						steem_post_grabber<?php echo $contentid;?>(query, 0, post_limit, filter_tag, secondary_tag, voters_list, skip_unvoted_posts, excluded_voters_list, true, min_words, min_pics);
 					});
 				<?php
 				
@@ -1558,6 +1617,9 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 				//tag used for filtering content
 				var filter_tag = '<?php echo $posttag; ?>';
 				
+				//additional tag used for further filtering
+				var secondary_tag = '<?php echo $secondarytag; ?>';
+				
 				//convert list of voters to array
 				var voters_list = <?php echo json_encode(explode(",",$postvoters));?>;				
 				
@@ -1568,6 +1630,9 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 				//grabbing list of any voters the related posts of which need to be excluded
 				var excluded_voters_list = <?php echo json_encode(explode(",",$postexcludevoters));?>;
 
+				//grabbing min vals for pic and word count. Values have already been validated so no need for further checks
+				var min_words = <?php echo $minwords;?>;
+				var min_pics = <?php echo $minpics;?>;		
 				
 				//setup query to grab proper posts with limit and/or tag
 				var query = {
@@ -1581,26 +1646,27 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 				
 				//handles storing the current count of posts that have been included for front end display
 				var included_post_count = 0;
-			
+				
 				//call fetcher function with false subsequent param
-				steem_post_grabber<?php echo $contentid;?>(query, included_post_count, post_limit, filter_tag, voters_list, skip_unvoted_posts, excluded_voters_list, false);
+				steem_post_grabber<?php echo $contentid;?>(query, included_post_count, post_limit, filter_tag, secondary_tag, voters_list, skip_unvoted_posts, excluded_voters_list, false, min_words, min_pics);
 				
 				/* function handling fetching matching steemit posts. Function name needs to be dynamic to allow multiple instances based on widgets/shortcodes included
 				 * query param contains the query to use for fetching the data
 				 * included_post_count keeps track of the number of posts so far generated/displayed
 				 * post_limit is the max count of posts to display
 				 * filter_tag is the tag to be used for filtering content
+				 * secondary_tag is another tag besides the main one to be used for content filtering
 				 * voters_list is the list of chosen voters
 				 * skip_unvoted_posts determines whether to display or not posts which did not receive a vote by above list
 				 * exluded_voters_list defines a list of voters whos posts will not be included, for example bots
 				 * subsequent identifies whether this is the first call, in which we need to keep all posts, or subsequent, whereby we need to skip the first post as it will have already been checked by the prior iteration 
+				 * min_words and min_pics define the min count of words and pics to be available in a post to be included
 				*/
-				function steem_post_grabber<?php echo $contentid;?>(query, included_post_count, post_limit, filter_tag, voters_list, skip_unvoted_posts, excluded_voters_list, subsequent){
-
-					
+				function steem_post_grabber<?php echo $contentid;?>(query, included_post_count, post_limit, filter_tag, secondary_tag, voters_list, skip_unvoted_posts, excluded_voters_list, subsequent, min_words, min_pics){
+							
 					//call getDiscussionsByCreated to grab steemit matching posts
 					steem.api.getDiscussionsByCreated(query, function (err, posts) {
-						// console.log(err, posts);
+						console.log(err, posts);
 						if (!err) {
 							
 							/* loop through all results */
@@ -1620,11 +1686,6 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 									query["start_permlink"] = post.permlink;
 									query["start_author"] = post.author;									
 								}
-							
-							//posts.map(function (post) {
-								// console.log(post);
-								var post_json_meta = JSON.parse(post.json_metadata);
-								// console.log(post_json_meta.tags);
 								
 								/* check if any of the post's voters are part of our selection to highlight them */
 								//contains the list of matching voters that we should display
@@ -1683,6 +1744,36 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 								var post_json_meta = JSON.parse(post.json_metadata);
 								// console.log(post_json_meta.tags);
 								
+								
+								//check whether we have a value for secondary tag, and try to match it against the tags associated with the post
+								if (secondary_tag.trim()!=''){
+									//make sure the post has a list of tags and check if the tag is found
+									if ($.isArray(post_json_meta.tags) && $.inArray(secondary_tag.trim(), post_json_meta.tags)<0){
+										//not found, skip
+										return true;
+									}
+								}
+								
+								//check whether the min number of words is set > 0, if so need to validate
+								if (min_words > 0){
+									//calculate number of words without HTML tags
+									console.log($('<p>'+post.body+'</p>').text().split(" ").length);
+									if ($('<p>'+post.body+'</p>').text().split(" ").length < min_words){
+										//if less than normal, skip
+										return true;
+									}
+								}
+								
+								//check whether the min number of pics is set > 0, if so need to validate
+								if (min_pics > 0){
+									//check the meta data for pic count and confirm if the number of images available works well for our criteria
+									if ($.isArray(post_json_meta.image) && post_json_meta.image.length>0){
+										if (post_json_meta.image.length < min_pics){
+											//skip this post
+											return true;
+										}
+									}
+								}
 								//create a new entry
 								var entry = document.createElement('div');
 								entry.setAttribute('class','steemit-post-entry');
@@ -1816,15 +1907,17 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 								
 							});//$.each posts loop
 							
-							// console.log("included_post_count:"+included_post_count+' >> post_limit:'+post_limit);
+							console.log("included_post_count:"+included_post_count+' >> post_limit:'+post_limit+ '>>>>posts.length:'+posts.length);
 							
 							//if we still have room to add posts, and our last attempt to grab posts worked, let's try again
 							if (posts.length >0 && included_post_count < post_limit){
-								// console.log('call again');
+								console.log('call again in 1 sec');
 								// console.log(query);
 								
 								//call again with subsequent enabled to avoid duplicate posts
-								steem_post_grabber<?php echo $contentid;?>(query, included_post_count, post_limit, filter_tag, voters_list, skip_unvoted_posts, excluded_voters_list, true);
+								setTimeout(steem_post_grabber<?php echo $contentid;?>, 1000, query, included_post_count, post_limit, filter_tag, secondary_tag, voters_list, skip_unvoted_posts, excluded_voters_list, true, min_words, min_pics);
+								
+								// steem_post_grabber<?php echo $contentid;?>(query, included_post_count, post_limit, filter_tag, secondary_tag, voters_list, skip_unvoted_posts, excluded_voters_list, true);
 							}else{
 								console.log('completed fetching max posts');
 								//remove loader if exists
