@@ -794,20 +794,20 @@ function steemit_user_info_renderer($username, $contentid){
 						//loop through each, we should have a single result either way
 						$.each (result, function (index, userinfo){
 							$('#account_name<?php echo $contentid;?>').html('<a href="https://www.steemit.com/@'+userinfo.name+'">@'+userinfo.name+'</a>');
-							$('#post_count<?php echo $contentid;?>').text('Total Posts: '+gk_add_commas(userinfo.post_count)+' posts');
+							$('#post_count<?php echo $contentid;?>').html('<b>Total Posts:</b> '+gk_add_commas(userinfo.post_count)+' posts');
 							//parse JSON content
 							var user_json_meta = JSON.parse(userinfo.json_metadata);
 							//display different content
 							$('#user_img<?php echo $contentid;?>').attr('src',user_json_meta.profile.profile_image);
-							(user_json_meta.profile.location!=""?$('#location<?php echo $contentid;?>').text('Location: '+user_json_meta.profile.location):'');
-							(user_json_meta.profile.about!=""?$('#about<?php echo $contentid;?>').text('About: '+user_json_meta.profile.about):'');
-							(user_json_meta.profile.website!=""?$('#website<?php echo $contentid;?>').html('Website: <a href="'+user_json_meta.profile.website+'">'+user_json_meta.profile.website+'</a>'):'');
+							(user_json_meta.profile.location!=""?$('#location<?php echo $contentid;?>').html('<b>Location:</b> '+user_json_meta.profile.location):'');
+							(user_json_meta.profile.about!=""?$('#about<?php echo $contentid;?>').html('<b>About:</b> '+user_json_meta.profile.about):'');
+							(user_json_meta.profile.website!=""?$('#website<?php echo $contentid;?>').html('<b>Website:</b> <a href="'+user_json_meta.profile.website+'">'+user_json_meta.profile.website+'</a>'):'');
 							var account_balance = steem.formatter.estimateAccountValue(userinfo);
 							//the result of fetching account value is a promise, so we need to wait for it to complete
 							$.when(account_balance).done(function(arg){
 								// console.log('done');
 								// console.log(arg);
-								$('#account_balance<?php echo $contentid;?>').text('Estimated Account Value: $'+gk_add_commas(parseFloat(arg).toFixed(2)));
+								$('#account_balance<?php echo $contentid;?>').html('<b>Estimated Account Value:</b> $'+gk_add_commas(parseFloat(arg).toFixed(2)));
 							});
 							// console.log(account_balance);
 							
@@ -821,17 +821,17 @@ function steemit_user_info_renderer($username, $contentid){
 								//as we receive the result, we need total_vesting_shares and total_vesting_fund_steem to convert vesting to STEEM, as follows
 								// console.log(result);
 								var steem_power = steem.formatter.vestToSteem(vest_shares, result.total_vesting_shares, result.total_vesting_fund_steem);
-								$('#steem_power<?php echo $contentid;?>').text('Own STEEM Power: '+gk_add_commas(parseFloat(steem_power).toFixed(2))+' SP');
+								$('#steem_power<?php echo $contentid;?>').html('<b>Own STEEM Power:</b> '+gk_add_commas(parseFloat(steem_power).toFixed(2))+' SP');
 								var delg_steem_power = steem.formatter.vestToSteem(delg_vesting_shares, result.total_vesting_shares, result.total_vesting_fund_steem);
 								var recv_steem_power = steem.formatter.vestToSteem(recv_vesting_shares, result.total_vesting_shares, result.total_vesting_fund_steem);
 								var effc_steem_power = steem_power - delg_steem_power + recv_steem_power;
 								if (delg_steem_power>0){
-									$('#delg_steem_power<?php echo $contentid;?>').text('Delegated STEEM Power: -'+gk_add_commas(parseFloat(delg_steem_power).toFixed(2))+' SP');
+									$('#delg_steem_power<?php echo $contentid;?>').html('<b>Delegated STEEM Power:</b> -'+gk_add_commas(parseFloat(delg_steem_power).toFixed(2))+' SP');
 								}
 								if (recv_steem_power>0){
-									$('#recv_steem_power<?php echo $contentid;?>').text('Received STEEM Power: '+gk_add_commas(parseFloat(recv_steem_power).toFixed(2))+' SP');
+									$('#recv_steem_power<?php echo $contentid;?>').html('<b>Received STEEM Power:</b> '+gk_add_commas(parseFloat(recv_steem_power).toFixed(2))+' SP');
 								}
-								$('#effc_steem_power<?php echo $contentid;?>').text('Effective STEEM Power: '+gk_add_commas(parseFloat(effc_steem_power).toFixed(2))+' SP');
+								$('#effc_steem_power<?php echo $contentid;?>').html('<b>Effective STEEM Power:</b> '+gk_add_commas(parseFloat(effc_steem_power).toFixed(2))+' SP');
 								
 								//grab steem value
 								$.ajax({
@@ -850,7 +850,7 @@ function steemit_user_info_renderer($username, $contentid){
 												
 												var realtime_balance = (parseFloat(steem_power)+parseFloat(userinfo.balance.replace(' STEEM',''))) * steem_price
 																		+ parseFloat(userinfo.sbd_balance.replace(' SBD','')) * sbd_price;
-												$('#realtime_balance<?php echo $contentid;?>').text('Real Time Account Value: $'+gk_add_commas(realtime_balance.toFixed(2)));
+												$('#realtime_balance<?php echo $contentid;?>').html('<b>Real Time Account Value:</b> $'+gk_add_commas(realtime_balance.toFixed(2)));
 											}
 										});
 									}
@@ -859,18 +859,18 @@ function steemit_user_info_renderer($username, $contentid){
 							});
 							
 							
-							$('#steem<?php echo $contentid;?>').text('STEEM Balance: '+gk_add_commas(userinfo.balance.replace(' STEEM',''))+' STEEM');
-							$('#sbd<?php echo $contentid;?>').text('SBD Balance: '+gk_add_commas(userinfo.sbd_balance.replace(' SBD',''))+' SBD');
+							$('#steem<?php echo $contentid;?>').html('<b>STEEM Balance:</b> '+gk_add_commas(userinfo.balance.replace(' STEEM',''))+' STEEM');
+							$('#sbd<?php echo $contentid;?>').html('<b>SBD Balance:</b> '+gk_add_commas(userinfo.sbd_balance.replace(' SBD',''))+' SBD');
 							
-							$('#voting_power<?php echo $contentid;?>').text('Voting Power: '+(parseInt(userinfo.voting_power)/100)+'%');
-							$('#reputation<?php echo $contentid;?>').text('Reputation: '+steem.formatter.reputation(userinfo.reputation));
+							$('#voting_power<?php echo $contentid;?>').html('<b>Voting Power:</b> '+(parseInt(userinfo.voting_power)/100)+'%');
+							$('#reputation<?php echo $contentid;?>').html('<b>Reputation:</b> '+steem.formatter.reputation(userinfo.reputation));
 							
 							//grab and display follower and following count
 							steem.api.getFollowCount('<?php echo $username;?>', function(err, result) {
 								//console.log(err, result);
 								if (!err) {
-									$('#followers<?php echo $contentid;?>').text('Followers: '+result.follower_count);
-									$('#following<?php echo $contentid;?>').text('Following: '+result.following_count);
+									$('#followers<?php echo $contentid;?>').html('<b>Followers:</b> '+result.follower_count);
+									$('#following<?php echo $contentid;?>').html('<b>Following:</b> '+result.following_count);
 								}
 							});
 							
@@ -887,6 +887,7 @@ function steemit_user_info_renderer($username, $contentid){
 		<div class="steemit_user_info">
 			<div id="account_name<?php echo $contentid;?>"></div>
 			<img id="user_img<?php echo $contentid;?>" class="steemit_user_img">
+			<div class="steemit_user_add_details">
 			<div id="about<?php echo $contentid;?>"></div>
 			<div id="location<?php echo $contentid;?>"></div>
 			<div id="website<?php echo $contentid;?>"></div>
@@ -904,6 +905,7 @@ function steemit_user_info_renderer($username, $contentid){
 			<div id="following<?php echo $contentid;?>"></div>			
 			<div id="account_balance<?php echo $contentid;?>"></div>
 			<div id="realtime_balance<?php echo $contentid;?>"></div>
+		</div>
 		</div>
 <?php
 }
@@ -1317,7 +1319,7 @@ class steemit_tag_voted_posts_widget extends WP_Widget {
 		$postvoters = apply_filters( 'steemit_post_voters_widget', $instance['steemit_post_voters_tag'] );
 		$restrictvotedposts = apply_filters( 'steemit_restrict_voted_posts', $instance['steemit_restrict_voted_posts'] ) ? true : false ;
 		$postexcludevoters = apply_filters( 'steemit_post_excluded_voters_tag', $instance['steemit_post_excluded_voters_tag'] );
-		$allowfrontendfilter = apply_filters( 'steemit_allow_frontend_filter', $instance['steemit_allow_frontend_filter'] ) ? true : false ;
+		$allowfrontendfilter = false;//apply_filters( 'steemit_allow_frontend_filter', $instance['steemit_allow_frontend_filter'] ) ? true : false ;
 		$iswidget = 1;
 		
 		//set as false by default
@@ -1399,7 +1401,7 @@ class steemit_tag_voted_posts_widget extends WP_Widget {
 		$instance['steemit_post_voters_tag'] = ( ! empty( $new_instance['steemit_post_voters_tag'] ) ) ? $new_instance['steemit_post_voters_tag'] : '';
 		$instance['steemit_restrict_voted_posts'] = $new_instance['steemit_restrict_voted_posts'];
 		$instance['steemit_post_excluded_voters_tag'] = ( ! empty( $new_instance['steemit_post_excluded_voters_tag'] ) ) ? $new_instance['steemit_post_excluded_voters_tag'] : '';
-		$instance['steemit_allow_frontend_filter'] = ( ! empty( $new_instance['steemit_allow_frontend_filter'] ) ) ? true : false;
+		//$instance['steemit_allow_frontend_filter'] = ( ! empty( $new_instance['steemit_allow_frontend_filter'] ) ) ? true : false;
 		return $instance;
 	}
 }
