@@ -3,7 +3,7 @@
   Plugin Name: GK Steemit Info
   Plugin URI: http://www.greateck.com/
   Description: A wordpress plugin that allows adding steem(it) (www.steemit.com) data to wordpress sites via widget or alternatively a shortcode
-  Version: 0.8.0
+  Version: 0.8.1
   Author: mcfarhat
   Author URI: http://www.greateck.com
   License: GPLv2

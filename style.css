@@ -23,6 +23,9 @@
 .steemit_user_info{
 	text-align: center;
 }
+.steemit_user_add_details{
+	text-align: left!important;
+}
 .steemit_user_img{
 	width: 50px;
 }
@@ -67,6 +70,7 @@
 .gk-filter-input{
 	width: 100%;
 	clear: both;
+	padding: 0.7em;
 }
 
 .gk-lbl{
@@ -86,12 +90,15 @@
 	display: inline-block;
 	width: 80%;
 }
-.steemit-post-voters{
+/*.steemit-post-voters{
 	float: right;
-}
+}*/
 .steemit-post-desc{
 	float: left;
 	width: 50%;
 	display: inline-block;
 	padding-left: 10px;
+}
+#filter_posts{
+	margin-top: 10px;
 }
