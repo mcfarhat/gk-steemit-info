@@ -3,7 +3,7 @@
   Plugin Name: GK Steemit Info
   Plugin URI: http://www.greateck.com/
   Description: A wordpress plugin that allows adding steem(it) (www.steemit.com) data to wordpress sites via widget or alternatively a shortcode
-  Version: 0.8.2
+  Version: 0.8.3
   Author: mcfarhat
   Author URI: http://www.greateck.com
   License: GPLv2
@@ -1471,15 +1471,15 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 			?>
 			<div class="gk-filter-container">
 				<label for="post_count" class="gk-lbl">Max Post Count</label>
-				<input type="numeric" id="post_count" name="post_count" class="gk-filter-input">
+				<input type="numeric" id="post_count" name="post_count" class="gk-filter-input" value="<?php echo $postcount;?>">
 				<label for="filter_tag" class="gk-lbl">Filter by Tag</label>
-				<input type="text" id="filter_tag" name="filter_tag" class="gk-filter-input">
+				<input type="text" id="filter_tag" name="filter_tag" class="gk-filter-input" value="<?php echo $posttag;?>">
 				<label for="voters" class="gk-lbl">Voters</label>
-				<input type="text" id="voters" name="voters" class="gk-filter-input">
-				<input type="checkbox" id="restrict_voted_posts" name="restrict_voted_posts" class="gk-filter-input-chkbx">
+				<input type="text" id="voters" name="voters" class="gk-filter-input" value="<?php echo $postvoters;?>">
+				<input type="checkbox" id="restrict_voted_posts" name="restrict_voted_posts" class="gk-filter-input-chkbx" <?php if ($restrictvotedposts){ echo "checked";}?>>
 				<label for="restrict_voted_posts" class="gk-lbl-chkbx">Only Include Voted Posts</label>
 				<label for="excluded_voters" class="gk-lbl">Excluded Voters</label>
-				<input type="text" id="excluded_voters" name="excluded_voters" class="gk-filter-input">
+				<input type="text" id="excluded_voters" name="excluded_voters" class="gk-filter-input" value="<?php echo $postexcludevoters;?>">
 				<input type="button" id="filter_posts" name="filter_posts" value="Filter">
 			</div>
 			<?php
