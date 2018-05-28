@@ -3,7 +3,7 @@
   Plugin Name: GK Steemit Info
   Plugin URI: http://www.greateck.com/
   Description: A wordpress plugin that allows adding steem(it) (www.steemit.com) data to wordpress sites via widget or alternatively a shortcode
-  Version: 0.8.1
+  Version: 0.8.2
   Author: mcfarhat
   Author URI: http://www.greateck.com
   License: GPLv2
@@ -1388,8 +1388,9 @@ class steemit_tag_voted_posts_widget extends WP_Widget {
 		<input type="checkbox" id="<?php echo $this->get_field_id( 'steemit_restrict_voted_posts' ); ?>" name="<?php echo $this->get_field_name( 'steemit_restrict_voted_posts' ); ?>" <?php if ($steemit_restrict_voted_posts){ echo "checked";}?>></p>
 		<p><label for="<?php echo $this->get_field_id( 'steemit_post_excluded_voters_tag' ); ?>">Exclude Voters:</label>
 		<input type="text" class="text" id="<?php echo $this->get_field_id( 'steemit_post_excluded_voters_tag' ); ?>" name="<?php echo $this->get_field_name( 'steemit_post_excluded_voters_tag' ); ?>" value="<?php echo esc_attr( $steemit_post_excluded_voters_tag ); ?>"></p>
-		<p><label for="<?php echo $this->get_field_id( 'steemit_allow_frontend_filter' ); ?>">Allow Front End Filtering:</label>
-		<input type="checkbox" id="<?php echo $this->get_field_id( 'steemit_allow_frontend_filter' ); ?>" name="<?php echo $this->get_field_name( 'steemit_allow_frontend_filter' ); ?>" <?php if ($steemit_allow_frontend_filter){ echo "checked";}?>></p>
+		<?php //removing as this will only be available for shortcodes 
+		/*<p><label for="<?php echo $this->get_field_id( 'steemit_allow_frontend_filter' ); ?>">Allow Front End Filtering:</label>
+		<input type="checkbox" id="<?php echo $this->get_field_id( 'steemit_allow_frontend_filter' ); ?>" name="<?php echo $this->get_field_name( 'steemit_allow_frontend_filter' ); ?>" <?php if ($steemit_allow_frontend_filter){ echo "checked";}?>></p>*/?>
 		<?php
 	}
 	// Updating widget replacing old instances with new
@@ -1496,6 +1497,13 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 				//fix for migration to api.steemit.com
 				steem.api.setOptions({ url: 'https://api.steemit.com' });
 
+				
+				//the target container for hosting our result set
+				var container = document.getElementById('tag_voted_posts_container<?php echo $contentid;?>');
+
+				//remove loader / empty container data
+				container.innerHTML='<img class="gk-loader-img" src="<?php echo plugins_url();?>/gk-steemit-info/img/ajax-loader.gif">';
+
 				<?php
 				//append JS function related to filtering if filtering is enabled
 				
@@ -1503,6 +1511,9 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 				
 				?>
 					$('#filter_posts').click(function(){
+						
+						//show loader
+						$('#tag_voted_posts_container<?php echo $contentid;?> img').show();
 						
 						//populate different values from front end
 						var post_limit = $('#post_count').val();
@@ -1526,7 +1537,7 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 						};
 						
 						//remove loader / empty container data
-						container.innerHTML="";
+						container.innerHTML='<img class="gk-loader-img" src="<?php echo plugins_url();?>/gk-steemit-info/img/ajax-loader.gif">';
 						
 						steem_post_grabber<?php echo $contentid;?>(query, 0, post_limit, filter_tag, voters_list, skip_unvoted_posts, excluded_voters_list, true);
 					});
@@ -1535,6 +1546,9 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 				}
 				
 				?>
+				
+				//show loader
+				$('#tag_voted_posts_container<?php echo $contentid;?> img').show();
 				
 				/* grab passed vals to be used in JS */
 					
@@ -1565,12 +1579,6 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 					limit: '<?php echo $postcount; ?>',
 				};
 				
-				//the target container for hosting our result set
-				var container = document.getElementById('tag_voted_posts_container<?php echo $contentid;?>');
-
-				//remove loader / empty container data
-				container.innerHTML="";
-				
 				//handles storing the current count of posts that have been included for front end display
 				var included_post_count = 0;
 			
@@ -1592,7 +1600,7 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 					
 					//call getDiscussionsByCreated to grab steemit matching posts
 					steem.api.getDiscussionsByCreated(query, function (err, posts) {
-						console.log(err, posts);
+						// console.log(err, posts);
 						if (!err) {
 							
 							/* loop through all results */
@@ -1600,14 +1608,14 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 								
 								//if this is a subsequent call, we need to skip first post
 								if (subsequent && index==0){
-									console.log('skip post:'+post.title);
+									// console.log('skip post:'+post.title);
 									//continue to next element
 									return true;
 								}
 							
 								//if this is the last post, save it for future iterations if needed. We do this at the beginning to avoid break outs
 								if (index == posts.length - 1){
-									console.log('found');
+									// console.log('found');
 									//update query element to include the most recent post for a starting point of the next iteration
 									query["start_permlink"] = post.permlink;
 									query["start_author"] = post.author;									
@@ -1621,6 +1629,7 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 								/* check if any of the post's voters are part of our selection to highlight them */
 								//contains the list of matching voters that we should display
 								var displayable_voters = [];
+								// console.log('voters_list');
 								// console.log(voters_list);
 								//go through list and check which items match the post's voters, if any
 								$.each(voters_list, function(voter_index, voter_name){
@@ -1692,9 +1701,9 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 									/* only display following info if in full mode (non-widget) */
 									if (!$iswidget){
 								?>
-								
 								//If images exist, use the first one
 								if ($.isArray(post_json_meta.image) && post_json_meta.image.length>0){
+									// console.log(post_json_meta.image[0]);
 									post_details += '<span class="steemit-post-img-container">';
 									post_details += '<img class="steemit-post-img" src="'+post_json_meta.image[0]+'"></span>';
 								}
@@ -1784,6 +1793,7 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 								post_details += '</div>';
 								
 								entry.innerHTML = post_details;
+								
 								//append it to the existing list
 								container.appendChild(entry);
 								
@@ -1817,6 +1827,11 @@ function steemit_tag_voted_posts_renderer($posttag, $postcount, $postvoters, $re
 								steem_post_grabber<?php echo $contentid;?>(query, included_post_count, post_limit, filter_tag, voters_list, skip_unvoted_posts, excluded_voters_list, true);
 							}else{
 								console.log('completed fetching max posts');
+								//remove loader if exists
+								if ($('#tag_voted_posts_container<?php echo $contentid;?> .gk-loader-img').length > 0){
+									console.log('remove loader');
+									$('#tag_voted_posts_container<?php echo $contentid;?> .gk-loader-img').remove();
+								}
 							}
 						}
 					});//end getDiscussionsByCreated
