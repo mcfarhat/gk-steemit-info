@@ -1555,6 +1555,12 @@ function steemit_tag_voted_posts_renderer($posttag, $secondarytag, $postcount, $
 
 				//remove loader / empty container data
 				container.innerHTML='<img class="gk-loader-img" src="<?php echo plugins_url();?>/gk-steemit-info/img/ajax-loader.gif">';
+				
+				//variable handling synchronization between mutliple filter clicks and cancellation of older ones
+				var is_running_<?php echo $contentid;?> = false;
+				
+				//variable defining if current process needs cancellation
+				var cancel_instance_<?php echo $contentid;?> = false;
 
 				<?php
 				//append JS function related to filtering if filtering is enabled
@@ -1595,10 +1601,24 @@ function steemit_tag_voted_posts_renderer($posttag, $secondarytag, $postcount, $
 							limit: post_limit,
 						};
 						
-						//remove loader / empty container data
-						container.innerHTML='<img class="gk-loader-img" src="<?php echo plugins_url();?>/gk-steemit-info/img/ajax-loader.gif">';
+						//we need to cancel any running instances
+						cancel_instance_<?php echo $contentid;?> = true;
 						
-						steem_post_grabber<?php echo $contentid;?>(query, 0, post_limit, filter_tag, secondary_tag, voters_list, skip_unvoted_posts, excluded_voters_list, true, min_words, min_pics);
+						//check to see if an instance is running, wait for it to cancel first confirm every 300 milliseconds
+						var intv_id = setInterval(function(){
+							//keep going until we find the current instance stopped running, call function and break
+							if (! is_running_<?php echo $contentid;?>){
+								//remove loader / empty container data
+								container.innerHTML='<img class="gk-loader-img" src="<?php echo plugins_url();?>/gk-steemit-info/img/ajax-loader.gif">';
+								//cancellation concluded
+								cancel_instance_<?php echo $contentid;?> = false;
+								//call the proper function
+								steem_post_grabber<?php echo $contentid;?>(query, 0, post_limit, filter_tag, secondary_tag, voters_list, skip_unvoted_posts, excluded_voters_list, true, min_words, min_pics);
+								//break interval
+								clearInterval(intv_id);
+							}
+							
+						},300);
 					});
 				<?php
 				
@@ -1663,10 +1683,13 @@ function steemit_tag_voted_posts_renderer($posttag, $secondarytag, $postcount, $
 				 * min_words and min_pics define the min count of words and pics to be available in a post to be included
 				*/
 				function steem_post_grabber<?php echo $contentid;?>(query, included_post_count, post_limit, filter_tag, secondary_tag, voters_list, skip_unvoted_posts, excluded_voters_list, subsequent, min_words, min_pics){
+				
+					//set function to be running atm
+					is_running_<?php echo $contentid;?> = true;
 							
 					//call getDiscussionsByCreated to grab steemit matching posts
 					steem.api.getDiscussionsByCreated(query, function (err, posts) {
-						console.log(err, posts);
+						//console.log(err, posts);
 						if (!err) {
 							
 							/* loop through all results */
@@ -1910,15 +1933,18 @@ function steemit_tag_voted_posts_renderer($posttag, $secondarytag, $postcount, $
 							console.log("included_post_count:"+included_post_count+' >> post_limit:'+post_limit+ '>>>>posts.length:'+posts.length);
 							
 							//if we still have room to add posts, and our last attempt to grab posts worked, let's try again
-							if (posts.length >0 && included_post_count < post_limit){
-								console.log('call again in 1 sec');
+							//adding also condition to check if we need to cancel this iteration
+							if (posts.length >0 && included_post_count < post_limit && !cancel_instance_<?php echo $contentid;?>){
+								//console.log('call again in 1 sec');
 								// console.log(query);
 								
-								//call again with subsequent enabled to avoid duplicate posts
+								//call again with subsequent enabled to avoid duplicate posts, disparse the calls by 1 sec to avoid API timeouts
 								setTimeout(steem_post_grabber<?php echo $contentid;?>, 1000, query, included_post_count, post_limit, filter_tag, secondary_tag, voters_list, skip_unvoted_posts, excluded_voters_list, true, min_words, min_pics);
 								
 								// steem_post_grabber<?php echo $contentid;?>(query, included_post_count, post_limit, filter_tag, secondary_tag, voters_list, skip_unvoted_posts, excluded_voters_list, true);
 							}else{
+								//confirm that this iteration is no longer running
+								is_running_<?php echo $contentid;?> = false;
 								console.log('completed fetching max posts');
 								//remove loader if exists
 								if ($('#tag_voted_posts_container<?php echo $contentid;?> .gk-loader-img').length > 0){
